@@ -398,12 +398,17 @@ export default function CheckoutPage() {
                 finalPhone = `${phoneData.code}${finalPhone}`;
             }
 
+            const returnUrl = `${window.location.origin}/checkout/order-received`;
+            const cancelUrl = `${window.location.origin}/checkout`;
+
             const input = {
                 billing: { ...formData, phone: finalPhone, country: formData.country },
                 shipping: { ...formData, phone: finalPhone, country: formData.country },
                 paymentMethod: ziinaGateway.id,
                 shipToDifferentAddress: false,
-                customerNote: "Checkout via Drotes Next.js"
+                customerNote: "Checkout via Drotes Next.js",
+                returnUrl,
+                cancelUrl,
             };
 
             const response = await checkout({ variables: { input } });
