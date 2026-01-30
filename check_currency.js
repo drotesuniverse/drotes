@@ -11,7 +11,7 @@ if (!consumerKey || !consumerSecret) {
 const auth = Buffer.from(`${consumerKey}:${consumerSecret}`).toString('base64');
 
 const options = {
-    hostname: 'drotes.com',
+    hostname: 'bck.drotes.com',
     path: '/wp-json/wc/v3/orders?per_page=50',
     method: 'GET',
     headers: {

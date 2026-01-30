@@ -24,6 +24,13 @@ export async function POST(req: NextRequest) {
         'Content-Type': 'application/json',
     };
 
+    // Forward Client Headers for correct location/currency detection
+    const forwarded = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip');
+    if (forwarded) headers['X-Forwarded-For'] = forwarded;
+
+    const userAgent = req.headers.get('user-agent');
+    if (userAgent) headers['User-Agent'] = userAgent;
+
     // ========== Session Handling ==========
     const clientSession = req.headers.get('x-wc-session');
 

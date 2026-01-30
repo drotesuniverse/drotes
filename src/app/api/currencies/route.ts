@@ -1,9 +1,13 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
     const ck = process.env.WC_CONSUMER_KEY;
     const cs = process.env.WC_CONSUMER_SECRET;
     const baseUrl = process.env.NEXT_PUBLIC_WORDPRESS_API_URL?.replace('/graphql', '') || 'https://bck.drotes.com';
+
+    // Forward Headers
+    const clientIp = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip');
+    const userAgent = req.headers.get('user-agent');
 
     const endpoints = [
         `${baseUrl}/wp-json/wmc/v1/params`,
@@ -17,10 +21,14 @@ export async function GET() {
         const id = setTimeout(() => controller.abort(), 4000);
 
         try {
+            const headers: Record<string, string> = {
+                'Authorization': 'Basic ' + Buffer.from(`${ck}:${cs}`).toString('base64'),
+            };
+            if (clientIp) headers['X-Forwarded-For'] = clientIp;
+            if (userAgent) headers['User-Agent'] = userAgent;
+
             const res = await fetch(url, {
-                headers: {
-                    'Authorization': 'Basic ' + Buffer.from(`${ck}:${cs}`).toString('base64')
-                },
+                headers,
                 signal: controller.signal
             });
             clearTimeout(id);
@@ -35,7 +43,6 @@ export async function GET() {
     try {
         const response = await Promise.any(endpoints.map(url => fetchWithTimeout(url)));
         return NextResponse.json(response);
-
     } catch (error) {
         console.error("All currency endpoints failed or timed out.");
         return NextResponse.json({ error: "Could not fetch rates" }, { status: 500 });

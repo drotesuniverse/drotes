@@ -119,7 +119,9 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
             .replace(/&nbsp;/g, " ")
             .replace(/&#160;/g, " ")
             .replace(/<[^>]*>/g, "") // Remove HTML tags
-            .replace(/د.إ/g, "AED")   // Force AED symbol
+            .replace(/د.إ/g, "AED")   // Arabic AED
+            .replace(/ريال/g, "SAR")  // Saudi
+            .replace(/₹/g, "₹")      // Rupee
             .trim();
     }, []);
 
@@ -127,35 +129,35 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
     const syncFromPriceString = useCallback((priceString: string) => {
         if (!priceString) return;
 
-        // Avoid infinite loop if already secure
-        // Simple heuristic detection
         let newCurrency: CurrencyInfo | null = null;
 
         if (priceString.includes("₹") || priceString.includes("INR")) {
             newCurrency = { ...currency, code: "INR", symbol: "₹" };
         } else if (priceString.includes("$") || priceString.includes("USD")) {
             newCurrency = { ...currency, code: "USD", symbol: "$" };
+        } else if (priceString.includes("AED") || priceString.includes("د.إ") || priceString.includes("إ")) {
+            newCurrency = { ...currency, code: "AED", symbol: "AED" };
+        } else if (priceString.includes("SR") || priceString.includes("SAR") || priceString.includes("ريال")) {
+            newCurrency = { ...currency, code: "SAR", symbol: "SAR" };
+        } else if (priceString.includes("KD") || priceString.includes("KWD")) {
+            newCurrency = { ...currency, code: "KWD", symbol: "KD" };
         } else if (priceString.includes("€") || priceString.includes("EUR")) {
             newCurrency = { ...currency, code: "EUR", symbol: "€" };
         } else if (priceString.includes("£") || priceString.includes("GBP")) {
             newCurrency = { ...currency, code: "GBP", symbol: "£" };
-        } else if (priceString.includes("AED") || priceString.includes("د.إ")) {
-            newCurrency = { ...currency, code: "AED", symbol: "AED" };
         }
 
         // Only update if code changed or symbol changed
         if (newCurrency && (newCurrency.code !== currency.code || newCurrency.symbol !== currency.symbol)) {
-            // Updated: Also update RATE from stored rates map
             newCurrency.rate = rates[newCurrency.code] || FALLBACK_RATES[newCurrency.code] || 1;
             setCurrency(prev => ({ ...prev, ...newCurrency }));
 
             // NEW: Set Standard Plugin Cookies so Backend knows the currency
             if (typeof document !== 'undefined') {
-                // For "Multi Currency for WooCommerce" (Curcy)
                 document.cookie = `wmc_current_currency=${newCurrency.code}; path=/; max-age=31536000; SameSite=Lax`;
-                // For "WOOCS - Currency Switcher" (if used)
                 document.cookie = `woocs_current_currency=${newCurrency.code}; path=/; max-age=31536000; SameSite=Lax`;
                 document.cookie = `woocommerce_current_currency=${newCurrency.code}; path=/; max-age=31536000; SameSite=Lax`;
+                document.cookie = `yaycurrency_current_currency=${newCurrency.code}; path=/; max-age=31536000; SameSite=Lax`;
             }
         }
     }, [currency, rates]);
