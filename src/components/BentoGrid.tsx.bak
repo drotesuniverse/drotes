@@ -1,0 +1,69 @@
+"use client";
+import React from "react";
+import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
+import { Quote, Shield, Lock, Fingerprint } from "lucide-react";
+
+export default function BentoGrid() {
+    return (
+        <section className="py-24 px-4 md:px-8 max-w-[1800px] mx-auto bg-[#050505]">
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="mb-12 text-center space-y-4"
+            >
+                <span className="text-white/40 font-mono text-[10px] md:text-xs uppercase tracking-[0.3em]">Philosophy</span>
+                <h2 className="text-2xl md:text-5xl font-bold tracking-tighter text-white uppercase">The Unspoken</h2>
+            </motion.div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-1 auto-rows-auto md:auto-rows-[400px]">
+
+                {/* Card 1: Large Quote */}
+                <div className="md:col-span-2 md:row-span-1 bg-[#0a0a0a] p-8 md:p-12 flex flex-col justify-between group overflow-hidden relative min-h-[300px]">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-white scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-left" />
+                    <Quote className="text-white/20" size={32} />
+                    <p className="text-xl md:text-4xl font-medium text-white leading-tight max-w-2xl mt-4 md:mt-0">
+                        "Silence isn't empty.<br />It's full of answers."
+                    </p>
+                    <div className="text-white/40 text-xs font-mono uppercase tracking-widest mt-4 md:mt-0">Origin Story</div>
+                </div>
+
+                {/* Card 2: Protection */}
+                <div className="md:col-span-1 md:row-span-2 bg-[#080808] p-8 md:p-10 flex flex-col items-center justify-center text-center space-y-6 md:space-y-8 group relative min-h-[300px]">
+                    <div className="absolute top-0 right-0 w-1 h-full bg-white scale-y-0 group-hover:scale-y-100 transition-transform duration-700 origin-top" />
+                    <div className="p-4 md:p-6 rounded-full bg-white/5 text-white">
+                        <Shield size={40} strokeWidth={1} />
+                    </div>
+                    <div>
+                        <h3 className="text-xl md:text-2xl font-bold uppercase tracking-widest text-white mb-4">Armor</h3>
+                        <p className="text-white/50 text-xs md:text-sm leading-relaxed px-2">
+                            Designed to shield you from the noise. Fabrics that feel like a second skin.
+                        </p>
+                    </div>
+                </div>
+
+                {/* Card 3: Hidden Meaning */}
+                <div className="md:col-span-1 md:row-span-1 bg-[#0a0a0a] p-8 md:p-10 flex flex-col justify-between group relative min-h-[250px]">
+                    <div className="absolute bottom-0 left-0 w-full h-1 bg-white scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-right" />
+                    <Lock className="text-white/30" size={28} />
+                    <div>
+                        <h3 className="text-lg md:text-xl font-bold uppercase tracking-widest text-white mb-2">Hidden</h3>
+                        <p className="text-white/50 text-[10px] md:text-xs uppercase tracking-wider">Details only you know.</p>
+                    </div>
+                </div>
+
+                {/* Card 4: Fingerprint */}
+                <div className="md:col-span-1 md:row-span-1 bg-[#0a0a0a] p-8 md:p-10 flex flex-col justify-between group relative min-h-[250px]">
+                    <div className="absolute bottom-0 right-0 w-1 h-full bg-white scale-y-0 group-hover:scale-y-100 transition-transform duration-700 origin-bottom" />
+                    <Fingerprint className="text-white/30" size={28} />
+                    <div>
+                        <h3 className="text-lg md:text-xl font-bold uppercase tracking-widest text-white mb-2">Identity</h3>
+                        <p className="text-white/50 text-[10px] md:text-xs uppercase tracking-wider">No two patterns alike.</p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    );
+}

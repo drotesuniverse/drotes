@@ -1,0 +1,148 @@
+{
+  "logo": {
+    "url": "/logo.png",
+    "width": 80,
+    "height": 24
+  },
+  "heroImage": "https://res.cloudinary.com/dzb0jezs8/image/upload/v1769531891/drotes/admin/admin_1769531889141_model_drotes_night.jpg",
+  "heroOverlayOpacity": 0.4,
+  "menuItems": [
+    {
+      "id": "1",
+      "name": "Home",
+      "href": "/"
+    },
+    {
+      "id": "2",
+      "name": "Drop: anec:dote",
+      "href": "/shop"
+    },
+    {
+      "id": "3",
+      "name": "About Brand",
+      "href": "https://about.drotes.com"
+    }
+  ],
+  "popup": {
+    "enabled": false,
+    "title": "Join The Inner Circle",
+    "text": "Get exclusive access to new drops and limited editions.",
+    "placeholder": "ENTER EMAIL ACCESS CODE",
+    "buttonText": "UNLOCK ACCESS"
+  },
+  "orders": [
+    {
+      "id": "#20207",
+      "customer": "sdc sdc",
+      "date": "2026-01-30",
+      "total": 754,
+      "currency": "AED",
+      "status": "processing",
+      "items": [
+        {
+          "name": "boxed hoodie - Faded Horizon Blue",
+          "cost": 0,
+          "price": 669,
+          "quantity": 1,
+          "image": "https://bck.drotes.com/wp-content/uploads/2025/11/4V6A1881-scaled.jpg"
+        },
+        {
+          "name": "Shipping Protection",
+          "cost": 0,
+          "price": 25,
+          "quantity": 1,
+          "image": ""
+        }
+      ],
+      "shippingCost": 60
+    },
+    {
+      "id": "#20176",
+      "customer": "ewrwer werwer",
+      "date": "2026-01-29",
+      "total": 909,
+      "currency": "AED",
+      "status": "processing",
+      "items": [
+        {
+          "name": "boxed hoodie - Faded Horizon Blue",
+          "cost": 0,
+          "price": 849,
+          "quantity": 1,
+          "image": "https://bck.drotes.com/wp-content/uploads/2025/11/4V6A1881-scaled.jpg"
+        }
+      ],
+      "shippingCost": 60
+    },
+    {
+      "id": "#20150",
+      "customer": "sdf sdf",
+      "date": "2026-01-29",
+      "total": 649,
+      "currency": "AED",
+      "status": "processing",
+      "items": [
+        {
+          "name": "boxed hoodie - Faded Horizon Blue",
+          "cost": 0,
+          "price": 649,
+          "quantity": 1,
+          "image": "https://bck.drotes.com/wp-content/uploads/2025/11/4V6A1881-scaled.jpg"
+        }
+      ],
+      "shippingCost": 0
+    }
+  ],
+  "capturedOrders": [],
+  "productCosts": {
+    "Boxed Hoodie": 70,
+    "sweat pant": 60,
+    "boxed hoodie": 60
+  },
+  "productPrices": {
+    "Boxed Hoodie": 649,
+    "sweat pant": 549,
+    "boxed hoodie": 649
+  },
+  "productOverrides": {
+    "sweat pant - Crimson Dust Red": {
+      "galleryImages": [
+        "https://res.cloudinary.com/dzb0jezs8/image/upload/v1769766103/drotes/admin/admin_1769766073450_4v6a4357.jpg",
+        "https://res.cloudinary.com/dzb0jezs8/image/upload/v1769766155/drotes/admin/admin_1769766127848_4v6a4359.jpg",
+        "https://res.cloudinary.com/dzb0jezs8/image/upload/v1769766200/drotes/admin/admin_1769766165925_4v6a4355.jpg"
+      ]
+    },
+    "sweat pant - Faded Horizon Blue": {
+      "galleryImages": [
+        "https://res.cloudinary.com/dzb0jezs8/image/upload/v1769767288/drotes/admin/admin_1769767284900_4v6a1912.jpg",
+        "https://res.cloudinary.com/dzb0jezs8/image/upload/v1769767297/drotes/admin/admin_1769767294997_4v6a1918.jpg",
+        "https://res.cloudinary.com/dzb0jezs8/image/upload/v1769767316/drotes/admin/admin_1769767302747_4v6a1919.jpg",
+        "https://res.cloudinary.com/dzb0jezs8/image/upload/v1769767325/drotes/admin/admin_1769767323145_4v6a1901.jpg"
+      ]
+    },
+    "sweat pant - Obsidian Black": {
+      "galleryImages": [
+        "https://res.cloudinary.com/dzb0jezs8/image/upload/v1769767345/drotes/admin/admin_1769767343982_4v6a1840.jpg",
+        "https://res.cloudinary.com/dzb0jezs8/image/upload/v1769767351/drotes/admin/admin_1769767350980_4v6a1844.jpg",
+        "https://res.cloudinary.com/dzb0jezs8/image/upload/v1769767362/drotes/admin/admin_1769767361859_4v6a1835.jpg",
+        "https://res.cloudinary.com/dzb0jezs8/image/upload/v1769767369/drotes/admin/admin_1769767368849_4v6a1833.jpg"
+      ]
+    }
+  },
+  "addonEnabledProducts": [],
+  "membersOnly": {
+    "enabled": false,
+    "saleDate": "2026-01-30T21:56:00.000Z"
+  },
+  "exchangeRates": {
+    "USD": 0.27,
+    "INR": 35,
+    "EUR": 0.23,
+    "GBP": 0.2
+  },
+  "shippingGuarantee": {
+    "enabled": false,
+    "price": 25,
+    "productId": "20205"
+  }
+}
