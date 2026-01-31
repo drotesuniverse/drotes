@@ -6,25 +6,22 @@ import ProductCard from "@/components/ProductCard";
 import { useQuery } from "@apollo/client";
 import { GET_SHOP_PRODUCTS } from "@/lib/queries";
 
-const MOCK_PRODUCTS = [
-    { id: 1, name: "The Shell", price: 120 },
-    { id: 2, name: "The Pant", price: 90 },
-    { id: 3, name: "The Hoodie", price: 110 },
-    { id: 4, name: "The Cap", price: 45 },
-    { id: 5, name: "Knit Vest", price: 85 },
-    { id: 6, name: "Cargo Short", price: 95 },
-];
+// No mock products - avoid hydration flashes of incorrect data
+const MOCK_PRODUCTS: any[] = [];
 
 
 
 // ... existing imports
 
 export default function ShopPage() {
-    // Live Data Fetching
-    const { loading, error, data } = useQuery(GET_SHOP_PRODUCTS);
+    // Live Data Fetching - cache-and-network ensures we see cache first then real data
+    const { loading, error, data } = useQuery(GET_SHOP_PRODUCTS, {
+        fetchPolicy: 'cache-and-network',
+        nextFetchPolicy: 'cache-first'
+    });
 
-    // Prices are pre-formatted by WooCommerce/Curcy - no frontend conversion needed
-    const products = data?.products?.nodes ? flattenVariations(data.products.nodes) : MOCK_PRODUCTS;
+    // Fallback to empty array while loading real products
+    const products = data?.products?.nodes ? flattenVariations(data.products.nodes) : [];
 
     if (loading) return (
         <main className="min-h-screen bg-white text-black flex items-center justify-center">
