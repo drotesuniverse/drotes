@@ -18,8 +18,11 @@ const customFetch = async (uri: RequestInfo | URL, options?: RequestInit) => {
         headers: headers
     };
 
-    // 2. Execute Request
-    const response = await fetch(uri, newOptions);
+    // 2. Execute Request (Enforce no-store to prevent stale App Router caching)
+    const response = await fetch(uri, {
+        ...newOptions,
+        cache: 'no-store'
+    });
 
     // 3. Process Response (Capture Session)
     const newSession = response.headers.get('x-wc-session');
