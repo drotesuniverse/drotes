@@ -31,6 +31,12 @@ export async function POST(req: NextRequest) {
     const userAgent = req.headers.get('user-agent');
     if (userAgent) headers['User-Agent'] = userAgent;
 
+    const host = req.headers.get('host');
+    if (host) headers['X-Forwarded-Host'] = host;
+
+    const proto = req.headers.get('x-forwarded-proto') || 'https';
+    headers['X-Forwarded-Proto'] = proto;
+
     // ========== Session Handling ==========
     const clientSession = req.headers.get('x-wc-session');
 

@@ -1,11 +1,14 @@
 "use client";
-
+import React from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import Image from "next/image";
 import { MicOff, VolumeX, Radio, Activity } from "lucide-react";
 import { useRef } from "react";
 
 export default function ContextSection() {
+    const [mounted, setMounted] = React.useState(false);
+    React.useEffect(() => setMounted(true), []);
+
     const containerRef = useRef(null);
     const { scrollYProgress } = useScroll({
         target: containerRef,
@@ -32,7 +35,7 @@ export default function ContextSection() {
 
             {/* Floating Icons Animation */}
             <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
-                {[MicOff, VolumeX, Radio, Activity].map((Icon, i) => (
+                {mounted && [MicOff, VolumeX, Radio, Activity].map((Icon, i) => (
                     <motion.div
                         key={i}
                         className="absolute text-white/5"

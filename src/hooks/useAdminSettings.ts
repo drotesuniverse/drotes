@@ -41,6 +41,14 @@ export interface AdminSettings {
         price: number;
         productId: string; // The virtual product ID in WooCommerce
     };
+    sizeCharts?: Array<{ id: string; name: string; headers: string[]; rows: string[][]; alternateRows?: string[][]; image?: string; unit?: "cm" | "in"; allowConversion?: boolean }>; // Interactive Size Charts (Table-based)
+    productSizeCharts?: Record<string, string>; // Product Name -> Chart ID override
+    socialLinks?: {
+        instagram?: string;
+        twitter?: string;
+        tiktok?: string;
+        youtube?: string;
+    };
 }
 
 export interface Order {
@@ -107,7 +115,7 @@ const DEFAULT_SETTINGS: AdminSettings = {
     addonEnabledProducts: [], // Default empty
     membersOnly: {
         enabled: false,
-        saleDate: new Date(Date.now() + 86400000 * 2).toISOString() // Default to 2 days from now
+        saleDate: "2026-02-01T00:00:00.000Z" // Static default for hydration safety
     },
     exchangeRates: {
         USD: 3.67,
@@ -119,6 +127,25 @@ const DEFAULT_SETTINGS: AdminSettings = {
         enabled: true,
         price: 25,
         productId: "99999" // Default placeholder
+    },
+    sizeCharts: [
+        {
+            id: "default",
+            name: "Standard Size Guide",
+            headers: ["Size", "Chest (cm)", "Length (cm)", "Shoulder (cm)"],
+            rows: [
+                ["S", "52", "68", "45"],
+                ["M", "55", "70", "47"],
+                ["L", "58", "72", "49"],
+                ["XL", "61", "74", "51"]
+            ]
+        }
+    ],
+    productSizeCharts: {},
+    socialLinks: {
+        instagram: "anecdotedrotes",
+        twitter: "drotes",
+        tiktok: "drotes"
     }
 };
 
@@ -154,9 +181,18 @@ export function useAdminSettings() {
                 if (res.ok) {
                     const serverData = await res.json();
                     if (Object.keys(serverData).length > 0) {
-                        merged = { ...merged, ...serverData };
+                        // MIGRATION: Ensure all size charts have headers and rows (Legacy fallback)
+                        const migratedCharts = (serverData.sizeCharts || []).map((chart: any) => ({
+                            ...chart,
+                            headers: chart.headers || ["Size", "Measurement"],
+                            rows: chart.rows || (chart.content ? [] : [["", ""]]), // Fallback for very old data
+                            unit: chart.unit || "cm" // Default to CM
+                        }));
+
+                        const migratedData = { ...serverData, sizeCharts: migratedCharts };
+                        merged = { ...merged, ...migratedData };
                         // Update state with server data when it arrives without resetting isLoaded
-                        setSettings(prev => ({ ...prev, ...serverData }));
+                        setSettings(prev => ({ ...prev, ...migratedData }));
                     }
                 }
             } catch (e) {

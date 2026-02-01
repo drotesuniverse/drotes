@@ -1,9 +1,12 @@
 "use client";
-
+import React from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowDown, Fingerprint } from "lucide-react";
 
 export default function Hero() {
+    const [mounted, setMounted] = React.useState(false);
+    React.useEffect(() => setMounted(true), []);
+
     const { scrollY } = useScroll();
     const y1 = useTransform(scrollY, [0, 500], [0, 200]);
     const y2 = useTransform(scrollY, [0, 500], [0, -100]);
@@ -16,8 +19,7 @@ export default function Hero() {
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-white/5 blur-[120px] rounded-full pointer-events-none" />
 
             {/* Active Particles */}
-            {/* Active Particles */}
-            {[...Array(20)].map((_, i) => (
+            {mounted && [...Array(20)].map((_, i) => (
                 <motion.div
                     key={i}
                     className="absolute bg-white/30 rounded-full blur-[1px] pointer-events-none"

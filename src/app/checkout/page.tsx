@@ -330,6 +330,7 @@ const TrustBadges = () => (
     </div>
 );
 export default function CheckoutPage() {
+    const { detectedCountry } = useCurrency();
     const { data: cartData, loading: cartLoading, refetch: refetchCart } = useQuery(GET_CART, { fetchPolicy: "network-only" });
     const { data: gatewayData, loading: gatewayLoading } = useQuery(GET_PAYMENT_GATEWAYS);
 
@@ -338,8 +339,15 @@ export default function CheckoutPage() {
 
     const [formData, setFormData] = useState({
         email: "", firstName: "", lastName: "", address1: "", address2: "", city: "",
-        country: "AE", state: "", postcode: "", phone: ""
+        country: detectedCountry || "AE", state: "", postcode: "", phone: ""
     });
+
+    // Sync country if detectedCountry changes (and form is still clean)
+    useEffect(() => {
+        if (detectedCountry && formData.country === "AE" && detectedCountry !== "AE") {
+            setFormData(prev => ({ ...prev, country: detectedCountry }));
+        }
+    }, [detectedCountry]);
 
     // Derived Phone Data
     const phoneData = COUNTRY_PHONE_DATA[formData.country] || COUNTRY_PHONE_DATA.DEFAULT;

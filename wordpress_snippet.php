@@ -262,38 +262,33 @@ add_filter('woocommerce_get_return_url', function($url, $order) {
 // CATCH-ALL REDIRECT (Aggressive Safety Net)
 // =============================================================================
 add_action('template_redirect', function() {
+    global $wp;
     $uri = $_SERVER['REQUEST_URI'] ?? '';
     
     // Check purely based on URL structure (bypassing WP conditionals)
     if (strpos($uri, 'order-received') !== false) {
         $order_id = 0;
 
-        // Try to extract integer after order-received/
+        // Pattern 1: /order-received/123/ (Pretty Permalinks)
         if (preg_match('/order-received\/(\d+)/', $uri, $matches)) {
             $order_id = intval($matches[1]);
         }
         
-        // Fallback: Check query param
-        if (!$order_id && isset($_GET['order-received'])) {
-            $order_id = intval($_GET['order-received']);
+        // Pattern 2: Standard WC query var
+        if (!$order_id && isset($wp->query_vars['order-received'])) {
+            $order_id = intval($wp->query_vars['order-received']);
         }
 
-        // Check global query vars (standard WC)
-        if (!$order_id) {
-            global $wp;
-            $order_id = isset($wp->query_vars['order-received']) ? $wp->query_vars['order-received'] : 0;
+        // Pattern 3: Fallback query param
+        if (!$order_id && isset($_GET['order-received'])) {
+            $order_id = intval($_GET['order-received']);
         }
 
         if ($order_id) {
             $order = wc_get_order($order_id);
             if ($order) {
                 // Determine the key (critical for security)
-                $order_key = isset($_GET['key']) ? $_GET['key'] : $order->get_order_key();
-
-                // Verify key matches if present in URL, otherwise use order's key
-                if (isset($_GET['key']) && $order_key !== $order->get_order_key()) {
-                    return; // Security mistmatch, let WP handle it
-                }
+                $order_key = isset($_GET['key']) ? sanitize_text_field($_GET['key']) : $order->get_order_key();
 
                 $frontend_url = 'https://drotes.com'; 
                 $new_url = add_query_arg([

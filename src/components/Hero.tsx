@@ -98,6 +98,29 @@ export default function Hero() {
                             Shop Collection
                         </button>
                     </Link>
+
+                    {/* Discovery Portal Hints */}
+                    <div className="flex gap-8 mt-12 bg-white/5 backdrop-blur-md px-6 py-3 rounded-full border border-white/10">
+                        <a href="https://anecdote.drotes.com" target="_blank" className="group flex items-center gap-2 relative">
+                            <div className="relative flex items-center justify-center">
+                                <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping opacity-20" />
+                                <div className="absolute w-1 h-1 bg-emerald-500 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
+                            </div>
+                            <span className="text-[8px] font-black uppercase tracking-[0.3em] text-white/40 group-hover:text-white transition-colors">Anecdote</span>
+                        </a>
+                        <div className="w-px h-2 bg-white/10" />
+                        <a href="https://patch.drotes.com" target="_blank" className="group flex items-center gap-2">
+                            <div className="relative flex items-center justify-center">
+                                <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping opacity-20" />
+                                <div className="absolute w-1 h-1 bg-emerald-500 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
+                            </div>
+                            <span className="text-[8px] font-black uppercase tracking-[0.3em] text-white/40 group-hover:text-white transition-colors">The Patch</span>
+                        </a>
+                        <div className="w-px h-2 bg-white/10" />
+                        <a href="https://founder.drotes.com" target="_blank" className="group flex items-center gap-2">
+                            <span className="text-[8px] font-black uppercase tracking-[0.3em] text-white/40 group-hover:text-white transition-colors">Note</span>
+                        </a>
+                    </div>
                 </motion.div>
             </div>
 

@@ -27,6 +27,9 @@ export async function GET(req: NextRequest) {
             if (clientIp) headers['X-Forwarded-For'] = clientIp;
             if (userAgent) headers['User-Agent'] = userAgent;
 
+            const host = req.headers.get('host');
+            if (host) headers['X-Forwarded-Host'] = host;
+
             const res = await fetch(url, {
                 headers,
                 signal: controller.signal

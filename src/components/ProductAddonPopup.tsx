@@ -44,6 +44,7 @@ export default function ProductAddonPopup({ onUpdate }: ProductAddonPopupProps) 
     const [step, setStep] = useState(0);
     // Store localized file data (preview URL + metadata)
     const [uploadedFile, setUploadedFile] = useState<{ url: string; name: string; type: string } | null>(null);
+    const [isInfoOpen, setIsInfoOpen] = useState(false);
     const modalRef = useRef<HTMLDivElement>(null);
 
     const { formatAddonPrice } = useCurrency();
@@ -233,7 +234,16 @@ export default function ProductAddonPopup({ onUpdate }: ProductAddonPopupProps) 
                             {/* Left Panel: Sidebar / Context */}
                             <div className="w-full md:w-1/3 bg-neutral-50 p-8 flex flex-col justify-between border-r border-neutral-100">
                                 <div>
-                                    <h2 className="text-2xl font-black uppercase tracking-tighter mb-2">Customize</h2>
+                                    <div className="flex items-center justify-between mb-2">
+                                        <h2 className="text-2xl font-black uppercase tracking-tighter">Customize</h2>
+                                        <button
+                                            onClick={() => setIsInfoOpen(true)}
+                                            className="w-8 h-8 rounded-full flex items-center justify-center bg-white border border-neutral-200 text-neutral-400 hover:text-[#1a472a] hover:border-[#1a472a] transition-all"
+                                            title="What is this?"
+                                        >
+                                            <Info size={16} />
+                                        </button>
+                                    </div>
                                     <p className="text-xs text-neutral-500 font-medium leading-relaxed mb-8">
                                         Make it unique. Add memories, songs, or messages to your Drotes Patch.
                                     </p>
@@ -502,6 +512,85 @@ export default function ProductAddonPopup({ onUpdate }: ProductAddonPopupProps) 
                                             {step === 2 ? "Review" : "Next"} <ChevronRight size={14} />
                                         </button>
                                     )}
+                                </div>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+
+            {/* Personalized Patch Info Modal */}
+            <AnimatePresence>
+                {isInfoOpen && (
+                    <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setIsInfoOpen(false)}
+                            className="absolute inset-0 bg-neutral-900/60 backdrop-blur-xl"
+                        />
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                            className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl overflow-hidden p-8 md:p-12"
+                        >
+                            <button
+                                onClick={() => setIsInfoOpen(false)}
+                                className="absolute top-6 right-6 p-2 hover:bg-neutral-100 rounded-full transition-colors"
+                            >
+                                <X size={20} />
+                            </button>
+
+                            <div className="space-y-6">
+                                <div className="w-16 h-16 bg-[#1a472a]/10 rounded-2xl flex items-center justify-center text-[#1a472a] mb-2">
+                                    <Info size={32} />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <h3 className="text-2xl font-black uppercase tracking-tighter">What is Personalized Patch?</h3>
+                                    <p className="text-sm text-neutral-500 font-medium leading-relaxed">
+                                        Our Drotes Rubber Patches are more than just accessories—they are interactive storytelling portals.
+                                    </p>
+                                </div>
+
+                                <div className="p-6 bg-neutral-50 rounded-2xl border border-neutral-100 space-y-4">
+                                    <p className="text-sm text-neutral-600 leading-relaxed font-medium">
+                                        When you customize a patch, we embed digital content (songs, personal videos, or emotional notes) that can be accessed by anyone who scans the physical patch.
+                                    </p>
+
+                                    <div className="grid grid-cols-1 gap-3 pt-2">
+                                        <div className="flex items-start gap-3">
+                                            <div className="w-5 h-5 rounded-full bg-[#1a472a] flex items-center justify-center shrink-0 mt-0.5">
+                                                <Check size={12} className="text-white" />
+                                            </div>
+                                            <div>
+                                                <p className="text-xs font-bold uppercase tracking-widest text-black">Gifting</p>
+                                                <p className="text-[11px] text-neutral-500 font-medium">Perfect for birthdays or anniversaries.</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-start gap-3">
+                                            <div className="w-5 h-5 rounded-full bg-[#1a472a] flex items-center justify-center shrink-0 mt-0.5">
+                                                <Check size={12} className="text-white" />
+                                            </div>
+                                            <div>
+                                                <p className="text-xs font-bold uppercase tracking-widest text-black">Exclusive Content</p>
+                                                <p className="text-[11px] text-neutral-500 font-medium">Unlock team-made surprises.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="pt-4 flex flex-col items-center gap-4">
+                                    <a
+                                        href="https://patch.drotes.com"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="w-full py-4 bg-black text-white text-[10px] font-bold uppercase tracking-[0.2em] rounded-full text-center hover:scale-105 transition-transform shadow-xl"
+                                    >
+                                        Learn more at patch.drotes.com
+                                    </a>
                                 </div>
                             </div>
                         </motion.div>

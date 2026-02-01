@@ -7,7 +7,8 @@ import { useAdminSettings, Order } from "@/hooks/useAdminSettings";
 import {
     LayoutDashboard, Palette, ShoppingBag, Package, Settings, LogOut, Upload,
     Plus, Trash2, Printer, Search, Bell, Menu, X, ChevronRight, Eye, MoreHorizontal,
-    ArrowUpRight, GripVertical, Check, Truck, Box, TrendingUp, Puzzle, ShieldCheck, Loader2
+    ArrowUpRight, GripVertical, Check, Truck, Box, TrendingUp, Puzzle, ShieldCheck, Loader2,
+    Ruler, FileText, Edit3, Instagram, Twitter, Youtube, Music2
 } from "lucide-react";
 import Image from "next/image";
 import { useQuery } from "@apollo/client";
@@ -485,17 +486,38 @@ const ProductsTab = ({ settings, updateSettings, initiateUpload }: any) => {
             </div>
 
             {!isVariation && (
-                <div className="mt-auto space-y-2">
-                    <div className="flex justify-between items-center text-xs text-neutral-400 font-bold uppercase tracking-wider">
-                        <span>Override Price</span>
+                <div className="mt-auto space-y-4 pt-4 border-t border-neutral-100">
+                    <div>
+                        <div className="flex justify-between items-center text-[10px] text-neutral-400 font-bold uppercase tracking-wider mb-2">
+                            <span>Override Price</span>
+                        </div>
+                        <input
+                            type="number"
+                            className="w-full bg-neutral-50 border-none rounded-xl p-2 text-sm font-bold focus:ring-0"
+                            placeholder={String(item.price)}
+                            value={settings.productPrices?.[item.name] || ""}
+                            onChange={(e) => updateSettings({ productPrices: { ...settings.productPrices, [item.name]: parseFloat(e.target.value) } })}
+                        />
                     </div>
-                    <input
-                        type="number"
-                        className="w-full bg-neutral-50 border-none rounded-xl p-2 text-sm font-bold focus:ring-0"
-                        placeholder={String(item.price)}
-                        value={settings.productPrices?.[item.name] || ""}
-                        onChange={(e) => updateSettings({ productPrices: { ...settings.productPrices, [item.name]: parseFloat(e.target.value) } })}
-                    />
+
+                    <div>
+                        <div className="flex justify-between items-center text-[10px] text-neutral-400 font-bold uppercase tracking-wider mb-2">
+                            <span>Size Guide</span>
+                        </div>
+                        <select
+                            className="w-full bg-neutral-50 border-none rounded-xl p-2 text-[11px] font-bold focus:ring-0 appearance-none"
+                            value={settings.productSizeCharts?.[item.name] || ""}
+                            onChange={(e) => updateSettings({
+                                productSizeCharts: { ...settings.productSizeCharts, [item.name]: e.target.value }
+                            })}
+                        >
+                            <option value="">Default (Backend)</option>
+                            <option value="disabled" className="text-red-500">Disabled (Hide Guide)</option>
+                            {(settings.sizeCharts || []).map((chart: any) => (
+                                <option key={chart.id} value={chart.id}>{chart.name}</option>
+                            ))}
+                        </select>
+                    </div>
                 </div>
             )}
         </motion.div>
@@ -722,7 +744,421 @@ const AddonsTab = ({ settings, updateSettings }: any) => {
     );
 };
 
-// ... (Rest of existing helper components)
+const SizeChartTab = ({ settings, updateSettings }: any) => {
+    const [editingChart, setEditingChart] = useState<any>(null);
+    const [activeEditUnit, setActiveEditUnit] = useState<"primary" | "alternate">("primary");
+
+    const addChart = () => {
+        const newChart = {
+            id: `chart-${Date.now()}`,
+            name: "New Size Chart",
+            headers: ["Size", "Chest", "Length"],
+            rows: [["S", "", ""], ["M", "", ""], ["L", "", ""]],
+            alternateRows: [["S", "", ""], ["M", "", ""], ["L", "", ""]],
+            unit: "cm"
+        };
+        updateSettings({ sizeCharts: [...(settings.sizeCharts || []), newChart] });
+        setEditingChart(newChart);
+    };
+
+    const deleteChart = (id: string) => {
+        if (!confirm("Are you sure?")) return;
+        updateSettings({ sizeCharts: (settings.sizeCharts || []).filter((c: any) => c.id !== id) });
+    };
+
+    // Table Grid Handlers
+    const addColumn = () => {
+        const newChart = { ...editingChart };
+        newChart.headers.push("New Column");
+        newChart.rows = newChart.rows.map((row: string[]) => [...row, ""]);
+        if (newChart.alternateRows) {
+            newChart.alternateRows = newChart.alternateRows.map((row: string[]) => [...row, ""]);
+        } else {
+            newChart.alternateRows = newChart.rows.map((row: string[]) => row.map(() => ""));
+        }
+        setEditingChart(newChart);
+    };
+
+    const removeColumn = (index: number) => {
+        if (editingChart.headers.length <= 1) return;
+        const newChart = { ...editingChart };
+        newChart.headers.splice(index, 1);
+        newChart.rows = newChart.rows.map((row: string[]) => {
+            const newRow = [...row];
+            newRow.splice(index, 1);
+            return newRow;
+        });
+        if (newChart.alternateRows) {
+            newChart.alternateRows = newChart.alternateRows.map((row: string[]) => {
+                const newRow = [...row];
+                newRow.splice(index, 1);
+                return newRow;
+            });
+        }
+        setEditingChart(newChart);
+    };
+
+    const addRow = () => {
+        const newChart = { ...editingChart };
+        newChart.rows.push(new Array(newChart.headers.length).fill(""));
+        if (!newChart.alternateRows) {
+            newChart.alternateRows = newChart.rows.map((row: string[]) => [...row]);
+        }
+        newChart.alternateRows.push(new Array(newChart.headers.length).fill(""));
+        setEditingChart(newChart);
+    };
+
+    const removeRow = (index: number) => {
+        if (editingChart.rows.length <= 1) return;
+        const newChart = { ...editingChart };
+        newChart.rows.splice(index, 1);
+        if (newChart.alternateRows) {
+            newChart.alternateRows.splice(index, 1);
+        }
+        setEditingChart(newChart);
+    };
+
+    const updateHeader = (index: number, val: string) => {
+        const newChart = { ...editingChart };
+        newChart.headers[index] = val;
+        setEditingChart(newChart);
+    };
+
+    const updateCell = (rowIndex: number, colIndex: number, val: string) => {
+        const newChart = { ...editingChart };
+        if (activeEditUnit === "primary") {
+            newChart.rows[rowIndex][colIndex] = val;
+        } else {
+            if (!newChart.alternateRows) {
+                // Initialize alternateRows from current rows if it doesn't exist
+                newChart.alternateRows = newChart.rows.map((row: string[]) => [...row]);
+            }
+            newChart.alternateRows[rowIndex][colIndex] = val;
+        }
+        setEditingChart(newChart);
+    };
+
+    return (
+        <motion.div variants={containerVar} initial="hidden" animate="show" className="space-y-8 pb-20">
+            <motion.div variants={itemVar} className="flex justify-between items-end">
+                <div>
+                    <h1 className="text-4xl font-black tracking-tighter mb-2">Size Guides</h1>
+                    <p className="text-neutral-400">Manage interactive measurement tables for your products.</p>
+                </div>
+                <button
+                    onClick={addChart}
+                    className="bg-black text-white px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest flex items-center gap-2 hover:bg-neutral-800 transition-all"
+                >
+                    <Plus size={16} /> Create New Chart
+                </button>
+            </motion.div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {(settings.sizeCharts || []).map((chart: any) => (
+                    <motion.div
+                        key={chart.id}
+                        variants={itemVar}
+                        className="bg-white p-6 rounded-[32px] border border-neutral-100 shadow-sm group hover:border-black/10 transition-all flex flex-col"
+                    >
+                        <div className="flex justify-between items-start mb-4">
+                            <div className="w-12 h-12 rounded-2xl bg-neutral-50 flex items-center justify-center">
+                                <Ruler size={24} className="text-neutral-400" />
+                            </div>
+                            <div className="flex gap-2">
+                                <button onClick={() => setEditingChart(chart)} className="p-2 hover:bg-neutral-50 rounded-full text-neutral-400 hover:text-black transition-colors">
+                                    <Edit3 size={16} />
+                                </button>
+                                <button onClick={() => deleteChart(chart.id)} className="p-2 hover:bg-neutral-50 rounded-full text-neutral-400 hover:text-red-500 transition-colors">
+                                    <Trash2 size={16} />
+                                </button>
+                            </div>
+                        </div>
+
+                        <h3 className="text-xl font-black mb-1">{chart.name}</h3>
+                        <div className="text-[10px] font-mono text-neutral-400 uppercase tracking-widest mb-6">
+                            {(chart.headers?.length || 0)} Columns • {(chart.rows?.length || 0)} Rows
+                        </div>
+
+                        <div className="mt-auto bg-neutral-50 rounded-2xl p-4 overflow-hidden mask-fade-bottom h-32">
+                            <table className="w-full text-left text-[10px] border-collapse">
+                                <thead>
+                                    <tr>
+                                        {(chart.headers || []).slice(0, 3).map((h: string, i: number) => (
+                                            <th key={i} className="font-bold uppercase tracking-widest text-neutral-400 pb-2 border-b border-neutral-200">{h}</th>
+                                        ))}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {(chart.rows || []).slice(0, 2).map((row: string[], ri: number) => (
+                                        <tr key={ri}>
+                                            {(row || []).slice(0, 3).map((cell: string, ci: number) => (
+                                                <td key={ci} className="py-2 font-medium border-b border-neutral-100">{cell}</td>
+                                            ))}
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </motion.div>
+                ))}
+            </div>
+
+            {/* TABLE EDITOR MODAL */}
+            <AnimatePresence>
+                {editingChart && (
+                    <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-md flex items-center justify-center p-4">
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            className="bg-white w-full max-w-6xl h-[90vh] rounded-[48px] overflow-hidden flex flex-col shadow-2xl border border-white/20"
+                        >
+                            <div className="p-8 border-b border-neutral-100 flex justify-between items-center bg-white/10 backdrop-blur-xl">
+                                <div>
+                                    <input
+                                        className="text-3xl font-black bg-transparent border-none focus:ring-0 p-0 tracking-tighter"
+                                        value={editingChart.name}
+                                        onChange={(e) => setEditingChart({ ...editingChart, name: e.target.value })}
+                                        autoFocus
+                                    />
+                                    <p className="text-neutral-400 text-[10px] mt-1 font-bold uppercase tracking-[0.2em]">Live Table Editor</p>
+                                </div>
+                                <div className="flex items-center gap-4 px-6 py-3 bg-neutral-50 rounded-full border border-neutral-100">
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Unit:</span>
+                                    <div className="flex gap-1 border-r border-neutral-200 pr-4 mr-4">
+                                        {["cm", "in"].map((u) => (
+                                            <button
+                                                key={u}
+                                                onClick={() => setEditingChart({ ...editingChart, unit: u })}
+                                                className={clsx(
+                                                    "px-3 py-1 rounded-lg text-[10px] font-bold uppercase transition-all",
+                                                    (editingChart.unit || "cm") === u ? "bg-black text-white shadow-sm" : "text-neutral-400 hover:text-black"
+                                                )}
+                                            >
+                                                {u}
+                                            </button>
+                                        ))}
+                                    </div>
+                                    <button
+                                        onClick={() => setEditingChart({ ...editingChart, allowConversion: !editingChart.allowConversion })}
+                                        className={clsx(
+                                            "flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase transition-all border",
+                                            editingChart.allowConversion ? "bg-blue-50 text-blue-600 border-blue-100" : "bg-neutral-50 text-neutral-400 border-neutral-100"
+                                        )}
+                                    >
+                                        <div className={clsx("w-2 h-2 rounded-full", editingChart.allowConversion ? "bg-blue-600" : "bg-neutral-300")} />
+                                        Dual Unit Mode
+                                    </button>
+                                </div>
+                                <div className="flex gap-4">
+                                    <button
+                                        onClick={() => setEditingChart(null)}
+                                        className="px-6 py-3 border border-neutral-200 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-neutral-50 transition-all"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            const updatedCharts = (settings.sizeCharts || []).map((c: any) => c.id === editingChart.id ? editingChart : c);
+                                            updateSettings({ sizeCharts: updatedCharts });
+                                            setEditingChart(null);
+                                        }}
+                                        className="px-8 py-3 bg-black text-white rounded-full text-xs font-bold uppercase tracking-widest hover:bg-neutral-800 shadow-xl shadow-black/20 hover:scale-105 transition-all"
+                                    >
+                                        Save Chart
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="flex-1 overflow-auto p-12 bg-neutral-50/50">
+                                <div className="max-w-5xl mx-auto space-y-8">
+                                    {/* DIAGRAM EDITOR */}
+                                    <div className="bg-white rounded-[40px] p-8 shadow-sm border border-neutral-100">
+                                        <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400 block mb-4">Measurement Diagram / Visual Guide</label>
+                                        <div className="flex flex-col md:flex-row gap-8 items-center">
+                                            <div className="w-full md:w-64 aspect-square bg-neutral-50 rounded-2xl border border-dashed border-neutral-200 flex items-center justify-center overflow-hidden relative group shrink-0">
+                                                {editingChart.image ? (
+                                                    <>
+                                                        <Image src={editingChart.image} alt="Diagram" fill className="object-cover" />
+                                                        <button
+                                                            onClick={() => setEditingChart({ ...editingChart, image: undefined })}
+                                                            className="absolute inset-0 bg-red-500/80 text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center font-bold text-xs uppercase"
+                                                        >
+                                                            Remove Image
+                                                        </button>
+                                                    </>
+                                                ) : (
+                                                    <div className="text-center p-4">
+                                                        <Upload size={24} className="mx-auto mb-2 text-neutral-300" />
+                                                        <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">No Diagram</p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div className="flex-1 space-y-4">
+                                                <h4 className="text-lg font-bold">Guide Visual</h4>
+                                                <p className="text-sm text-neutral-500 max-w-sm leading-relaxed">
+                                                    Upload a measurement diagram or product visual to help customers understand how to measure. This will be shown alongside the data table.
+                                                </p>
+                                                <div className="flex gap-3">
+                                                    <button
+                                                        onClick={() => document.getElementById('chart-image-upload')?.click()}
+                                                        className="bg-black text-white px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-neutral-800 transition-all shadow-lg shadow-black/10"
+                                                    >
+                                                        Upload Image
+                                                    </button>
+                                                    <input
+                                                        id="chart-image-upload"
+                                                        type="file"
+                                                        className="hidden"
+                                                        onChange={async (e) => {
+                                                            const file = e.target.files?.[0];
+                                                            if (file) {
+                                                                try {
+                                                                    const url = await uploadAdminImage(file);
+                                                                    setEditingChart({ ...editingChart, image: url });
+                                                                } catch (e) { alert("Upload failed"); }
+                                                            }
+                                                        }}
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="bg-white rounded-[40px] shadow-sm border border-neutral-100 overflow-hidden">
+                                        {/* Edit Mode Toggle */}
+                                        <div className="p-4 bg-neutral-50/50 border-b border-neutral-100 flex items-center justify-between">
+                                            <div className="flex items-center gap-2">
+                                                <div className={`w-2 h-2 rounded-full ${activeEditUnit === 'primary' ? 'bg-black' : 'bg-blue-500 animate-pulse'}`} />
+                                                <span className="text-[10px] font-black uppercase tracking-widest text-neutral-400">
+                                                    Currently Editing: <span className="text-neutral-900">{activeEditUnit === 'primary' ? `PRIMARY (${(editingChart.unit || "cm").toUpperCase()})` : `MANUAL OVERRIDE (${((editingChart.unit || "cm") === "cm" ? "in" : "cm").toUpperCase()})`}</span>
+                                                </span>
+                                            </div>
+                                            <div className="flex gap-1 bg-white p-1 rounded-full shadow-sm border border-neutral-200">
+                                                <button
+                                                    onClick={() => setActiveEditUnit("primary")}
+                                                    className={clsx(
+                                                        "px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest transition-all",
+                                                        activeEditUnit === "primary" ? "bg-black text-white" : "text-neutral-400 hover:text-black"
+                                                    )}
+                                                >
+                                                    PRIMARY ({(editingChart.unit || "cm").toUpperCase()})
+                                                </button>
+                                                <button
+                                                    onClick={() => setActiveEditUnit("alternate")}
+                                                    className={clsx(
+                                                        "px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest transition-all",
+                                                        activeEditUnit === "alternate" ? "bg-blue-600 text-white" : "text-neutral-400 hover:text-blue-600"
+                                                    )}
+                                                >
+                                                    MANUAL OVERRIDE ({((editingChart.unit || "cm") === "cm" ? "in" : "cm").toUpperCase()})
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div className="overflow-x-auto">
+                                            <table className="w-full border-collapse">
+                                                <thead>
+                                                    <tr className="bg-neutral-50/50">
+                                                        {editingChart.headers.map((h: string, i: number) => (
+                                                            <th key={i} className="group relative p-6 min-w-[140px] border-r border-neutral-100 last:border-r-0">
+                                                                <div className="flex flex-col gap-2">
+                                                                    <input
+                                                                        className="w-full bg-transparent border-none focus:ring-0 p-0 text-xs font-black uppercase tracking-widest text-neutral-400 text-center"
+                                                                        value={h}
+                                                                        placeholder="Header..."
+                                                                        onChange={(e) => updateHeader(i, e.target.value)}
+                                                                    />
+                                                                    <button
+                                                                        onClick={() => removeColumn(i)}
+                                                                        className="absolute -top-2 left-1/2 -translate-x-1/2 p-2 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-all scale-75"
+                                                                    >
+                                                                        <Trash2 size={12} />
+                                                                    </button>
+                                                                </div>
+                                                            </th>
+                                                        ))}
+                                                        <th className="p-6 bg-neutral-50/20">
+                                                            <button
+                                                                onClick={addColumn}
+                                                                className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center hover:scale-110 transition-all mx-auto shadow-lg"
+                                                                title="Add Column"
+                                                            >
+                                                                <Plus size={16} />
+                                                            </button>
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {editingChart.rows.map((row: string[], ri: number) => {
+                                                        const getAutoPlaceholder = (val: string) => {
+                                                            if (!val) return "";
+                                                            if (val.includes("-")) {
+                                                                return val.split("-").map(v => getAutoPlaceholder(v.trim())).join("-");
+                                                            }
+                                                            const num = parseFloat(val);
+                                                            if (isNaN(num)) return "";
+                                                            const primaryUnit = editingChart.unit || "cm";
+                                                            if (primaryUnit === "cm") return (num / 2.54).toFixed(1);
+                                                            return (num * 2.54).toFixed(1);
+                                                        };
+
+                                                        return (
+                                                            <tr key={ri} className="group hover:bg-neutral-50/30 transition-colors">
+                                                                {row.map((cell: string, ci: number) => (
+                                                                    <td key={ci} className="p-0 border-r border-neutral-100 last:border-r-0">
+                                                                        <input
+                                                                            className="w-full h-16 bg-transparent border-none focus:ring-2 focus:ring-black/5 px-6 font-bold text-sm text-center"
+                                                                            value={activeEditUnit === "primary" ? cell : (editingChart.alternateRows?.[ri]?.[ci] || "")}
+                                                                            placeholder={activeEditUnit === "alternate" ? getAutoPlaceholder(cell) : "0"}
+                                                                            onChange={(e) => updateCell(ri, ci, e.target.value)}
+                                                                        />
+                                                                    </td>
+                                                                ))}
+                                                                <td className="p-4 w-12 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                    <button
+                                                                        onClick={() => removeRow(ri)}
+                                                                        className="p-3 text-neutral-300 hover:text-red-500 transition-colors"
+                                                                    >
+                                                                        <Trash2 size={16} />
+                                                                    </button>
+                                                                </td>
+                                                            </tr>
+                                                        );
+                                                    })}
+                                                    <tr>
+                                                        <td colSpan={editingChart.headers.length + 1} className="p-6 border-t border-neutral-100">
+                                                            <button
+                                                                onClick={addRow}
+                                                                className="w-full py-4 border-2 border-dashed border-neutral-200 rounded-2xl text-xs font-bold uppercase tracking-widest text-neutral-400 hover:border-black hover:text-black transition-all flex items-center justify-center gap-2"
+                                                            >
+                                                                <Plus size={14} /> Add New Row
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-8 flex gap-6 p-6 bg-blue-50/50 rounded-3xl border border-blue-100/50">
+                                        <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 shrink-0">
+                                            <FileText size={18} />
+                                        </div>
+                                        <div className="text-xs leading-relaxed text-blue-800/70">
+                                            <p className="font-bold text-blue-900 mb-1">Editor Instructions</p>
+                                            <p>Use the top black (+) button to add columns. Use the bottom dashed button to add rows. Your changes are live in the preview above, but you must click <b>"Save Chart"</b> to persist them permanently. Hover over headers or rows to see delete options.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+        </motion.div>
+    );
+};
 
 const ProfitTab = ({ settings, calculateOrderProfit }: any) => {
     const allOrders = [...(settings.capturedOrders || []), ...settings.orders].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
@@ -1005,6 +1441,44 @@ const SettingsTab = ({ settings, updateSettings }: any) => {
                 </motion.div>
             </motion.div>
 
+            {/* Social Media Channels */}
+            <motion.div variants={itemVar} className="bg-white p-8 rounded-[32px] border border-neutral-100 shadow-sm">
+                <div className="flex items-center gap-4 mb-6">
+                    <div className="w-12 h-12 rounded-full bg-pink-50 flex items-center justify-center text-pink-600">
+                        <Instagram size={20} />
+                    </div>
+                    <div>
+                        <h3 className="font-bold text-lg">Social Presence</h3>
+                        <p className="text-neutral-400 text-sm">Manage your brand's social media usernames for the footer.</p>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {[
+                        { key: 'instagram', label: 'Instagram', icon: Instagram },
+                        { key: 'twitter', label: 'Twitter', icon: Twitter },
+                        { key: 'tiktok', label: 'TikTok', icon: Music2 },
+                        { key: 'youtube', label: 'YouTube', icon: Youtube }
+                    ].map((platform) => (
+                        <div key={platform.key} className="space-y-2">
+                            <label className="text-[10px] font-bold uppercase tracking-widest text-neutral-500 block">{platform.label}</label>
+                            <div className="relative">
+                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 text-xs font-bold">@</span>
+                                <input
+                                    type="text"
+                                    className="w-full bg-neutral-50 border-none rounded-xl pl-8 pr-4 py-3 text-sm font-bold focus:ring-0"
+                                    placeholder="username"
+                                    value={(settings.socialLinks as any)?.[platform.key] || ""}
+                                    onChange={(e) => updateSettings({
+                                        socialLinks: { ...settings.socialLinks, [platform.key]: e.target.value }
+                                    })}
+                                />
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </motion.div>
+
             <motion.div variants={itemVar} className="bg-red-50 p-8 rounded-[32px] border border-red-100">
                 <h3 className="font-bold text-red-900 mb-2">Danger Zone</h3>
                 <p className="text-red-700/60 text-sm mb-6">Resetting will clear all local changes and return to defaults.</p>
@@ -1083,6 +1557,7 @@ export default function MiniAdminPage() {
                         { id: "commerce", icon: ShoppingBag, label: "Commerce" },
                         { id: "profit", icon: TrendingUp, label: "Profit" },
                         { id: "products", icon: Package, label: "Inventory" },
+                        { id: "size-guide", icon: Ruler, label: "Size Guide" }, // New Size Guide Tab
                         { id: "settings", icon: Settings, label: "System" }
                     ].map(tab => (
                         <button
@@ -1136,6 +1611,7 @@ export default function MiniAdminPage() {
                             {activeTab === "commerce" && <CommerceTab settings={settings} calculateOrderProfit={calculateOrderProfit} updateSettings={updateSettings} />}
                             {activeTab === "profit" && <ProfitTab settings={settings} calculateOrderProfit={calculateOrderProfit} />}
                             {activeTab === "products" && <ProductsTab settings={settings} updateSettings={updateSettings} />}
+                            {activeTab === "size-guide" && <SizeChartTab settings={settings} updateSettings={updateSettings} />}
                             {activeTab === "settings" && <SettingsTab settings={settings} updateSettings={updateSettings} />}
                         </motion.div>
                     </AnimatePresence>

@@ -32,6 +32,182 @@
   },
   "orders": [
     {
+      "id": "#20298",
+      "customer": "Bdbdbd Hdhshsg",
+      "date": "2026-01-31",
+      "total": 729,
+      "currency": "AED",
+      "status": "cancelled",
+      "items": [
+        {
+          "name": "boxed hoodie - Faded Horizon Blue",
+          "cost": 0,
+          "price": 669,
+          "quantity": 1,
+          "image": "https://bck.drotes.com/wp-content/uploads/2025/11/4V6A1881-scaled.jpg"
+        }
+      ],
+      "shippingCost": 60
+    },
+    {
+      "id": "#20296",
+      "customer": "sdf sdfsdfd",
+      "date": "2026-01-30",
+      "total": 709,
+      "currency": "AED",
+      "status": "processing",
+      "items": [
+        {
+          "name": "boxed hoodie - Faded Horizon Blue",
+          "cost": 0,
+          "price": 649,
+          "quantity": 1,
+          "image": "https://bck.drotes.com/wp-content/uploads/2025/11/4V6A1881-scaled.jpg"
+        }
+      ],
+      "shippingCost": 60
+    },
+    {
+      "id": "#20295",
+      "customer": "dsfs dsfds",
+      "date": "2026-01-30",
+      "total": 669,
+      "currency": "AED",
+      "status": "processing",
+      "items": [
+        {
+          "name": "boxed hoodie - Faded Horizon Blue",
+          "cost": 0,
+          "price": 669,
+          "quantity": 1,
+          "image": "https://bck.drotes.com/wp-content/uploads/2025/11/4V6A1881-scaled.jpg"
+        }
+      ],
+      "shippingCost": 0
+    },
+    {
+      "id": "#20293",
+      "customer": "dsfdsf sdfds",
+      "date": "2026-01-30",
+      "total": 1947,
+      "currency": "AED",
+      "status": "processing",
+      "items": [
+        {
+          "name": "boxed hoodie - Obsidian Black",
+          "cost": 0,
+          "price": 649,
+          "quantity": 1,
+          "image": "https://bck.drotes.com/wp-content/uploads/2025/11/4V6A1867-scaled.jpg"
+        },
+        {
+          "name": "boxed hoodie - Faded Horizon Blue",
+          "cost": 0,
+          "price": 649,
+          "quantity": 1,
+          "image": "https://bck.drotes.com/wp-content/uploads/2025/11/4V6A1881-scaled.jpg"
+        },
+        {
+          "name": "boxed hoodie - Faded Horizon Blue",
+          "cost": 0,
+          "price": 649,
+          "quantity": 1,
+          "image": "https://bck.drotes.com/wp-content/uploads/2025/11/4V6A1881-scaled.jpg"
+        }
+      ],
+      "shippingCost": 0
+    },
+    {
+      "id": "#20292",
+      "customer": "ertert ertert",
+      "date": "2026-01-30",
+      "total": 669,
+      "currency": "AED",
+      "status": "processing",
+      "items": [
+        {
+          "name": "boxed hoodie - Faded Horizon Blue",
+          "cost": 0,
+          "price": 669,
+          "quantity": 1,
+          "image": "https://bck.drotes.com/wp-content/uploads/2025/11/4V6A1881-scaled.jpg"
+        }
+      ],
+      "shippingCost": 0
+    },
+    {
+      "id": "#20289",
+      "customer": "Bdbdhd Dhdhdye",
+      "date": "2026-01-30",
+      "total": 669,
+      "currency": "AED",
+      "status": "processing",
+      "items": [
+        {
+          "name": "boxed hoodie - Faded Horizon Blue",
+          "cost": 0,
+          "price": 669,
+          "quantity": 1,
+          "image": "https://bck.drotes.com/wp-content/uploads/2025/11/4V6A1881-scaled.jpg"
+        }
+      ],
+      "shippingCost": 0
+    },
+    {
+      "id": "#20288",
+      "customer": "Hshs gdvshsgs",
+      "date": "2026-01-30",
+      "total": 669,
+      "currency": "AED",
+      "status": "cancelled",
+      "items": [
+        {
+          "name": "boxed hoodie - Faded Horizon Blue",
+          "cost": 0,
+          "price": 669,
+          "quantity": 1,
+          "image": "https://bck.drotes.com/wp-content/uploads/2025/11/4V6A1881-scaled.jpg"
+        }
+      ],
+      "shippingCost": 0
+    },
+    {
+      "id": "#20287",
+      "customer": "sdsd sdsd",
+      "date": "2026-01-30",
+      "total": 669,
+      "currency": "AED",
+      "status": "processing",
+      "items": [
+        {
+          "name": "boxed hoodie - Faded Horizon Blue",
+          "cost": 0,
+          "price": 669,
+          "quantity": 1,
+          "image": "https://bck.drotes.com/wp-content/uploads/2025/11/4V6A1881-scaled.jpg"
+        }
+      ],
+      "shippingCost": 0
+    },
+    {
+      "id": "#20286",
+      "customer": "sdf sdf",
+      "date": "2026-01-30",
+      "total": 669,
+      "currency": "AED",
+      "status": "processing",
+      "items": [
+        {
+          "name": "boxed hoodie - Faded Horizon Blue",
+          "cost": 0,
+          "price": 669,
+          "quantity": 1,
+          "image": "https://bck.drotes.com/wp-content/uploads/2025/11/4V6A1881-scaled.jpg"
+        }
+      ],
+      "shippingCost": 0
+    },
+    {
       "id": "#20207",
       "customer": "sdc sdc",
       "date": "2026-01-30",
@@ -55,42 +231,6 @@
         }
       ],
       "shippingCost": 60
-    },
-    {
-      "id": "#20176",
-      "customer": "ewrwer werwer",
-      "date": "2026-01-29",
-      "total": 909,
-      "currency": "AED",
-      "status": "processing",
-      "items": [
-        {
-          "name": "boxed hoodie - Faded Horizon Blue",
-          "cost": 0,
-          "price": 849,
-          "quantity": 1,
-          "image": "https://bck.drotes.com/wp-content/uploads/2025/11/4V6A1881-scaled.jpg"
-        }
-      ],
-      "shippingCost": 60
-    },
-    {
-      "id": "#20150",
-      "customer": "sdf sdf",
-      "date": "2026-01-29",
-      "total": 649,
-      "currency": "AED",
-      "status": "processing",
-      "items": [
-        {
-          "name": "boxed hoodie - Faded Horizon Blue",
-          "cost": 0,
-          "price": 649,
-          "quantity": 1,
-          "image": "https://bck.drotes.com/wp-content/uploads/2025/11/4V6A1881-scaled.jpg"
-        }
-      ],
-      "shippingCost": 0
     }
   ],
   "capturedOrders": [],
@@ -144,5 +284,80 @@
     "enabled": false,
     "price": 25,
     "productId": "20205"
+  },
+  "sizeCharts": [
+    {
+      "id": "chart-1769847142172",
+      "name": "Boxed Hoodie",
+      "headers": [
+        "Size ( IN )",
+        "shoulder",
+        "Length",
+        "chest",
+        "sleeve length"
+      ],
+      "rows": [
+        [
+          "S",
+          "24.8",
+          "27.5",
+          "24.5",
+          "20.5"
+        ],
+        [
+          "M",
+          "25.6",
+          "28.5",
+          "25.5",
+          "21"
+        ],
+        [
+          "L",
+          "26.4",
+          "29.5",
+          "26.5",
+          "21.5"
+        ]
+      ],
+      "image": "https://res.cloudinary.com/dzb0jezs8/image/upload/v1769847624/drotes/admin/admin_1769847601343_asset_7_33_33x.png",
+      "unit": "in"
+    },
+    {
+      "id": "chart-1769850675639",
+      "name": "Boxed sweat pant",
+      "headers": [
+        "Size",
+        "Chest",
+        "Length"
+      ],
+      "rows": [
+        [
+          "S",
+          "45",
+          "26"
+        ],
+        [
+          "M",
+          "26",
+          "67"
+        ],
+        [
+          "L",
+          "12.5",
+          "12.3"
+        ]
+      ],
+      "unit": "cm",
+      "allowConversion": true
+    }
+  ],
+  "productSizeCharts": {
+    "sweat pant": "chart-1769847142172",
+    "boxed hoodie": "chart-1769847142172"
+  },
+  "socialLinks": {
+    "instagram": "thedrotes",
+    "tiktok": "thedrotes",
+    "youtube": ""
   }
 }

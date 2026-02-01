@@ -1,10 +1,12 @@
 "use client";
 import React, { useRef, useState, useEffect } from "react";
 import { motion, useSpring, useMotionValue, useTransform } from "framer-motion";
-import { ArrowUpRight, Instagram, Twitter, Mail, ArrowRight, Globe, Lock } from "lucide-react";
+import { ArrowUpRight, Instagram, Twitter, Mail, ArrowRight, Globe, Lock, Youtube, Music2 } from "lucide-react";
+import { useAdminSettings } from "@/hooks/useAdminSettings";
 import Link from "next/link";
 
 export default function Footer() {
+    const { settings } = useAdminSettings();
     return (
         <footer className="bg-[#050505] text-white pt-32 pb-12 px-6 md:px-12 border-t border-white/5 overflow-hidden font-[family-name:var(--font-poppins)]">
             <div className="max-w-[1800px] mx-auto">
@@ -22,7 +24,7 @@ export default function Footer() {
                     </div>
 
                     {/* Links Grid with Staggered Animation */}
-                    <div className="lg:col-span-4 grid grid-cols-2 gap-12">
+                    <div className="lg:col-span-4 grid grid-cols-1 md:grid-cols-3 gap-12">
                         <motion.div
                             initial="hidden"
                             whileInView="visible"
@@ -45,6 +47,21 @@ export default function Footer() {
                             viewport={{ once: true }}
                             variants={{
                                 visible: { transition: { staggerChildren: 0.1, delayChildren: 0.2 } }
+                            }}
+                            className="flex flex-col gap-6"
+                        >
+                            <h4 className="text-[10px] font-bold text-neutral-700 uppercase tracking-[0.6em] mb-4">Universe</h4>
+                            <FooterLink href="https://anecdote.drotes.com" focus>Anecdote</FooterLink>
+                            <FooterLink href="https://patch.drotes.com" focus>The Patch</FooterLink>
+                            <FooterLink href="https://founder.drotes.com">Founder's Note</FooterLink>
+                        </motion.div>
+
+                        <motion.div
+                            initial="hidden"
+                            whileInView="visible"
+                            viewport={{ once: true }}
+                            variants={{
+                                visible: { transition: { staggerChildren: 0.1, delayChildren: 0.4 } }
                             }}
                             className="flex flex-col gap-6"
                         >
@@ -87,8 +104,18 @@ export default function Footer() {
                     <LiveTicker />
 
                     <div className="flex gap-4">
-                        <SocialLink icon={<Instagram size={18} strokeWidth={1.5} />} />
-                        <SocialLink icon={<Twitter size={18} strokeWidth={1.5} />} />
+                        {settings.socialLinks?.instagram && (
+                            <SocialLink href={`https://instagram.com/${settings.socialLinks.instagram}`} icon={<Instagram size={18} strokeWidth={1.5} />} />
+                        )}
+                        {settings.socialLinks?.twitter && (
+                            <SocialLink href={`https://twitter.com/${settings.socialLinks.twitter}`} icon={<Twitter size={18} strokeWidth={1.5} />} />
+                        )}
+                        {settings.socialLinks?.tiktok && (
+                            <SocialLink href={`https://tiktok.com/@${settings.socialLinks.tiktok}`} icon={<Music2 size={18} strokeWidth={1.5} />} />
+                        )}
+                        {settings.socialLinks?.youtube && (
+                            <SocialLink href={`https://youtube.com/@${settings.socialLinks.youtube}`} icon={<Youtube size={18} strokeWidth={1.5} />} />
+                        )}
                     </div>
 
                     <div className="text-[9px] text-neutral-700 uppercase tracking-[0.5em] font-mono">
@@ -136,7 +163,22 @@ function MagneticLogo() {
     );
 }
 
-function FooterLink({ href, children }: { href: string; children: React.ReactNode }) {
+function FooterLink({ href, children, focus }: { href: string; children: React.ReactNode; focus?: boolean }) {
+    const isExternal = href.startsWith("http");
+    const content = (
+        <div className="group flex items-center gap-2 text-xs text-neutral-500 hover:text-white transition-colors uppercase tracking-[0.3em] font-medium relative">
+            <div className="w-1 h-1 bg-white scale-0 group-hover:scale-100 transition-transform rounded-full shrink-0" />
+            {focus && (
+                <div className="absolute -left-4 flex items-center justify-center">
+                    <div className="w-1.5 h-1.5 bg-white rounded-full animate-ping opacity-20" />
+                    <div className="absolute w-1 h-1 bg-white rounded-full shadow-[0_0_8px_rgba(255,255,255,0.8)]" />
+                </div>
+            )}
+            <span className={focus ? "pl-2" : ""}>{children}</span>
+            {isExternal && <ArrowUpRight size={10} className="opacity-20 group-hover:opacity-100 transition-opacity" />}
+        </div>
+    );
+
     return (
         <motion.div
             variants={{
@@ -144,17 +186,22 @@ function FooterLink({ href, children }: { href: string; children: React.ReactNod
                 visible: { opacity: 1, y: 0 }
             }}
         >
-            <Link href={href} className="group flex items-center gap-2 text-xs text-neutral-500 hover:text-white transition-colors uppercase tracking-[0.3em] font-medium">
-                <div className="w-1 h-1 bg-white scale-0 group-hover:scale-100 transition-transform rounded-full" />
-                {children}
-            </Link>
+            {isExternal ? (
+                <a href={href} target="_blank" rel="noopener noreferrer">
+                    {content}
+                </a>
+            ) : (
+                <Link href={href}>
+                    {content}
+                </Link>
+            )}
         </motion.div>
     );
 }
 
-function SocialLink({ icon }: { icon: React.ReactNode }) {
+function SocialLink({ icon, href }: { icon: React.ReactNode; href: string }) {
     return (
-        <a href="#" className="w-12 h-12 rounded-full border border-white/5 flex items-center justify-center text-neutral-500 hover:text-white hover:bg-white/5 hover:border-white/20 transition-all group">
+        <a href={href} target="_blank" rel="noopener noreferrer" className="w-12 h-12 rounded-full border border-white/5 flex items-center justify-center text-neutral-500 hover:text-white hover:bg-white/5 hover:border-white/20 transition-all group">
             <motion.div whileHover={{ scale: 1.2, rotate: 10 }} transition={{ type: "spring", stiffness: 400, damping: 10 }}>
                 {icon}
             </motion.div>

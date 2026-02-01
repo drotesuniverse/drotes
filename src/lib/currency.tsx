@@ -25,6 +25,7 @@ interface CurrencyContextType {
     formatValue: (value: number) => string;
     cleanWooPrice: (priceString: string) => string;
     syncFromPriceString: (priceString: string) => void;
+    detectedCountry: string;
 }
 
 // Default to AED
@@ -40,6 +41,7 @@ const CurrencyContext = createContext<CurrencyContextType | undefined>(undefined
 export function CurrencyProvider({ children }: { children: React.ReactNode }) {
     const [currency, setCurrency] = useState<CurrencyInfo>(defaultCurrency);
     const [rates, setRates] = useState<Record<string, number>>(FALLBACK_RATES);
+    const [detectedCountry, setDetectedCountry] = useState("AE");
     const [loading, setLoading] = useState(true);
 
     // Fetch currency info from Curcy API on mount
@@ -75,6 +77,17 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
                         rate: (data.rates && data.rates[data.code]) || 1,
                         position: "left"
                     });
+                }
+
+                // NEW: Detect Country from API (if backend provides it, otherwise fallback to CC code)
+                if (data.country) {
+                    setDetectedCountry(data.country);
+                } else if (data.current_currency === 'INR') {
+                    setDetectedCountry('IN');
+                } else if (data.current_currency === 'SAR') {
+                    setDetectedCountry('SA');
+                } else if (data.current_currency === 'USD') {
+                    setDetectedCountry('US');
                 }
             } catch (err) {
                 console.error("Currency fetch failed, using defaults:", err);
@@ -163,7 +176,7 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
     }, [currency, rates]);
 
     return (
-        <CurrencyContext.Provider value={{ currency, loading, formatAddonPrice, formatValue, cleanWooPrice, syncFromPriceString }}>
+        <CurrencyContext.Provider value={{ currency, loading, formatAddonPrice, formatValue, cleanWooPrice, syncFromPriceString, detectedCountry }}>
             {children}
         </CurrencyContext.Provider>
     );

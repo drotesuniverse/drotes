@@ -260,8 +260,6 @@ export default function SingleProductPage() {
             setAddonSummary({});
             setAddonResetKey(prev => prev + 1); // Force re-mount of addon popup
             setQuantity(1); // Reset quantity
-
-            alert("Added to bag!");
         } catch (err: any) {
             console.error(err);
             alert(`Failed to add to cart: ${err.message || "Unknown error"}`);
@@ -509,7 +507,7 @@ export default function SingleProductPage() {
                                     <div key={attr.name}>
                                         <div className="flex justify-between items-center mb-3">
                                             <h3 className="text-xs font-bold uppercase tracking-widest text-neutral-900">{attr.name.replace('pa_', '')}</h3>
-                                            {attr.name.toLowerCase().includes("size") && (
+                                            {attr.name.toLowerCase().includes("size") && settings.productSizeCharts?.[product.name] !== "disabled" && (
                                                 <button
                                                     onClick={() => setIsSizeGuideOpen(true)}
                                                     className="flex items-center gap-1 text-[10px] uppercase tracking-wider underline text-neutral-400 hover:text-black transition-colors"
@@ -645,7 +643,16 @@ export default function SingleProductPage() {
                         <SizeGuideModal
                             isOpen={isSizeGuideOpen}
                             onClose={() => setIsSizeGuideOpen(false)}
-                            content={product?.sizeGuide?.value}
+                            content={(() => {
+                                // 1. Check for Admin Override
+                                const overrideChartId = settings.productSizeCharts?.[product.name];
+                                if (overrideChartId) {
+                                    const customChart = settings.sizeCharts?.find((c: any) => c.id === overrideChartId);
+                                    if (customChart) return customChart;
+                                }
+                                // 2. Fallback to WooCommerce Backend content
+                                return product?.sizeGuide?.value;
+                            })()}
                         />
 
                         {/* Collapsible Info Sections (Moved Bottom) */}

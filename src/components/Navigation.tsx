@@ -53,6 +53,7 @@ export default function Navigation({ theme = "dark" }: NavigationProps) {
     useEffect(() => {
         const handleCartUpdate = () => {
             refetchCart();
+            setCartOpen(true);
         };
         window.addEventListener('cart-updated', handleCartUpdate);
         return () => window.removeEventListener('cart-updated', handleCartUpdate);
@@ -93,7 +94,7 @@ export default function Navigation({ theme = "dark" }: NavigationProps) {
     return (
         <>
             <nav className={cn(
-                "fixed top-0 left-0 w-full z-[999] px-6 py-6 transition-all duration-500 ease-out",
+                "fixed top-0 left-0 w-full z-50 px-6 py-6 transition-all duration-500 ease-out",
                 scrolled ? (theme === "dark" ? "bg-[#050505]/90 backdrop-blur-md py-4" : "bg-white/90 backdrop-blur-md py-4 shadow-sm") : "bg-transparent"
             )}>
                 <div className="max-w-[1800px] mx-auto grid grid-cols-3 items-center">
@@ -155,6 +156,28 @@ export default function Navigation({ theme = "dark" }: NavigationProps) {
 
                     {/* Right: Cart & Search */}
                     <div className="flex justify-end items-center gap-6" >
+                        <div className="hidden md:flex items-center gap-6 pr-6 border-r border-black/5 mr-2">
+                            <a
+                                href="https://anecdote.drotes.com"
+                                target="_blank"
+                                className={cn(
+                                    "flex items-center gap-3 px-4 py-2 rounded-full transition-all group relative overflow-hidden",
+                                    theme === "dark" ? "bg-white/5 hover:bg-white/10" : "bg-black/5 hover:bg-black/10"
+                                )}
+                            >
+                                <div className="relative flex items-center justify-center">
+                                    <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping opacity-40" />
+                                    <div className="absolute w-1 h-1 bg-emerald-500 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
+                                </div>
+                                <span className={cn(
+                                    "text-[9px] font-black uppercase tracking-[0.2em] transition-colors",
+                                    theme === "dark" ? "text-white/40 group-hover:text-white" : "text-black/40 group-hover:text-black"
+                                )}>
+                                    The Narrative
+                                </span>
+                            </a>
+                        </div>
+
                         <button
                             onClick={() => setSearchOpen(true)}
                             className={cn("transition-colors hidden md:block", theme === "dark" ? "text-white hover:text-white/60" : "text-black hover:text-black/60")}
@@ -189,7 +212,7 @@ export default function Navigation({ theme = "dark" }: NavigationProps) {
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             onClick={() => setCartOpen(false)}
-                            className="fixed inset-0 bg-black/50 z-[60] backdrop-blur-sm"
+                            className="fixed inset-0 bg-black/50 z-[1000] backdrop-blur-sm"
                         />
                         {/* Drawer */}
                         <motion.div
@@ -197,7 +220,7 @@ export default function Navigation({ theme = "dark" }: NavigationProps) {
                             animate={{ x: 0 }}
                             exit={{ x: "100%" }}
                             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                            className="fixed top-0 right-0 h-full w-full max-w-[420px] bg-white/80 backdrop-blur-2xl z-[70] shadow-2xl flex flex-col border-l border-white/20"
+                            className="fixed top-0 right-0 h-full w-full max-w-[420px] bg-white/80 backdrop-blur-2xl z-[1001] shadow-2xl flex flex-col border-l border-white/20"
                         >
                             {/* Drawer Header */}
                             <div className="flex items-center justify-between p-8 border-b border-black/5 bg-white/50">
@@ -428,6 +451,28 @@ export default function Navigation({ theme = "dark" }: NavigationProps) {
                                     {link.name}
                                 </Link>
                             ))}
+
+                            <div className="h-px bg-white/5 my-4" />
+                            <div className="space-y-6">
+                                <h4 className="text-[10px] font-bold text-neutral-700 uppercase tracking-[0.6em] mb-4">Universe</h4>
+                                <a href="https://anecdote.drotes.com" target="_blank" className="flex items-center gap-4 group">
+                                    <div className="relative flex items-center justify-center">
+                                        <div className="w-2 h-2 bg-emerald-500 rounded-full animate-ping opacity-40" />
+                                        <div className="absolute w-1.5 h-1.5 bg-emerald-500 rounded-full shadow-[0_0_10px_rgba(16,185,129,0.8)]" />
+                                    </div>
+                                    <span className="text-xl text-white font-light uppercase tracking-wider">Anecdote</span>
+                                </a>
+                                <a href="https://patch.drotes.com" target="_blank" className="flex items-center gap-4 group">
+                                    <div className="relative flex items-center justify-center">
+                                        <div className="w-2 h-2 bg-emerald-500 rounded-full animate-ping opacity-40" />
+                                        <div className="absolute w-1.5 h-1.5 bg-emerald-500 rounded-full shadow-[0_0_10px_rgba(16,185,129,0.8)]" />
+                                    </div>
+                                    <span className="text-xl text-white font-light uppercase tracking-wider">The Patch</span>
+                                </a>
+                                <a href="https://founder.drotes.com" target="_blank" className="flex items-center gap-4 group opacity-60">
+                                    <span className="text-xl text-white font-light uppercase tracking-wider pl-6">Founder's Note</span>
+                                </a>
+                            </div>
                         </div>
 
                         <div className="mt-auto text-white/40 text-xs uppercase tracking-widest">
