@@ -45,6 +45,19 @@ export async function GET(req: NextRequest) {
 
     try {
         const response = await Promise.any(endpoints.map(url => fetchWithTimeout(url)));
+
+        // INJECT VERCEL COUNTRY HEADER
+        const vercelCountry = req.headers.get('x-vercel-ip-country');
+        if (vercelCountry) {
+            console.log(`[API] Detected Vercel Country: ${vercelCountry}`);
+            // Check if backend already provided it. If not (or if we trust Vercel more), override/set it.
+            // Let's set it as a distinct field that the frontend looks for.
+            response.country = vercelCountry;
+        } else {
+            // Development fallback or direct access
+            response.country = "AE";
+        }
+
         return NextResponse.json(response);
     } catch (error) {
         console.error("All currency endpoints failed or timed out.");
