@@ -46,17 +46,34 @@ export async function GET(req: NextRequest) {
     try {
         const response = await Promise.any(endpoints.map(url => fetchWithTimeout(url)));
 
-        // INJECT VERCEL COUNTRY HEADER
-        const vercelCountry = req.headers.get('x-vercel-ip-country');
-        if (vercelCountry) {
-            console.log(`[API] Detected Vercel Country: ${vercelCountry}`);
-            // Check if backend already provided it. If not (or if we trust Vercel more), override/set it.
-            // Let's set it as a distinct field that the frontend looks for.
-            response.country = vercelCountry;
-        } else {
-            // Development fallback or direct access
-            response.country = "AE";
+        // GEOLOCATION LOGIC (Tiered Fallback)
+        let detectedCountry = req.headers.get('x-vercel-ip-country');
+
+        // Tier 2: Upstream determined country (if any)
+        if (!detectedCountry && response.country) {
+            detectedCountry = response.country;
         }
+
+        // Tier 3: External IP API (For Local/VPS/Non-Vercel)
+        if (!detectedCountry) {
+            try {
+                // Use client IP if available, otherwise API defaults to caller's IP (useful for local dev)
+                const queryIp = (clientIp && clientIp !== '::1' && clientIp !== '127.0.0.1') ? clientIp : '';
+                const ipRes = await fetch(`http://ip-api.com/json/${queryIp}`, { signal: AbortSignal.timeout(3000) });
+                if (ipRes.ok) {
+                    const ipData = await ipRes.json();
+                    if (ipData?.status === 'success' && ipData?.countryCode) {
+                        detectedCountry = ipData.countryCode;
+                        console.log(`[API] Detected Country via IP-API: ${detectedCountry} (IP: ${queryIp || 'Self'})`);
+                    }
+                }
+            } catch (err) {
+                console.warn("[API] IP-API geolocation fallback failed:", err);
+            }
+        }
+
+        // Final Assignment (Default to AE)
+        response.country = detectedCountry || "AE";
 
         return NextResponse.json(response);
     } catch (error) {
