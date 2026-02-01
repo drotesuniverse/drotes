@@ -52,12 +52,17 @@ export async function POST(req: NextRequest) {
         headers['Cookie'] = cookie;
     }
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 25000); // 25s timeout
+
     try {
         const response = await fetch(endpoint, {
             method: 'POST',
             headers,
             body: JSON.stringify(body),
+            signal: controller.signal
         });
+        clearTimeout(timeoutId);
 
         const data = await response.json();
         const nextResponse = NextResponse.json(data);
@@ -109,8 +114,17 @@ export async function POST(req: NextRequest) {
         });
 
         return nextResponse;
-    } catch (error) {
+    } catch (error: any) {
+        clearTimeout(timeoutId);
+        if (error.name === 'AbortError') {
+            console.error("Proxy Error: Request timed out after 25s");
+            return NextResponse.json({ error: "Upstream request timed out. The server is taking too long to respond." }, { status: 504 });
+        }
         console.error("Proxy Error:", error);
-        return NextResponse.json({ error: "Failed to fetch from GraphQL backend" }, { status: 500 });
+        return NextResponse.json({
+            error: "Failed to fetch from GraphQL backend",
+            details: error.message,
+            cause: error.cause
+        }, { status: 500 });
     }
 }
