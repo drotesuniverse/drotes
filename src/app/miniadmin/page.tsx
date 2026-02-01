@@ -1091,7 +1091,7 @@ const SizeChartTab = ({ settings, updateSettings }: any) => {
                                                 </thead>
                                                 <tbody>
                                                     {editingChart.rows.map((row: string[], ri: number) => {
-                                                        const getAutoPlaceholder = (val: string) => {
+                                                        const getAutoPlaceholder = (val: string): string => {
                                                             if (!val) return "";
                                                             if (val.includes("-")) {
                                                                 return val.split("-").map(v => getAutoPlaceholder(v.trim())).join("-");
