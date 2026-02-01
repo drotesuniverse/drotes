@@ -170,7 +170,7 @@ export default function SingleProductPage() {
 
     // Handle Add to Cart
     const handleAddToCart = async () => {
-        if (!product) return;
+        if (!product || isAdding) return;
 
         // Dynamic Data
         const isVariable = product.type?.toLowerCase() === 'variable' || product.variations?.nodes?.length > 0;
