@@ -40,12 +40,17 @@ export async function POST(req: NextRequest) {
     // ========== Session Handling ==========
     const clientSession = req.headers.get('x-wc-session');
 
+    // Debug: Check if session header is causing the loop/crash
+    /*
     if (clientSession) {
         headers['woocommerce-session'] = `Session ${clientSession}`;
         if (isCartMutation) {
             console.log(`[Proxy] Cart Mutation - Sending session: ${clientSession.substring(0, 30)}...`);
         }
     }
+    */
+    // Reverting to NO session injection to test if this fixes the 500 error
+
 
     const cookie = req.headers.get('cookie');
     if (cookie) {
@@ -63,6 +68,17 @@ export async function POST(req: NextRequest) {
             signal: controller.signal
         });
         clearTimeout(timeoutId);
+
+        // Debug: Log non-200 responses
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error(`[GraphQL Proxy] Upstream Error: ${response.status} ${response.statusText}`);
+            console.error(`[GraphQL Proxy] Body: ${errorText.substring(0, 500)}`); // Log first 500 chars
+            return NextResponse.json({
+                error: `Upstream error ${response.status}`,
+                details: errorText.substring(0, 200)
+            }, { status: response.status });
+        }
 
         const data = await response.json();
         const nextResponse = NextResponse.json(data);
