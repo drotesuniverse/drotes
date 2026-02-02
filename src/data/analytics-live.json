@@ -1,0 +1,59 @@
+{
+  "visitors": {
+    "v_39hq6ajg7": {
+      "id": "v_39hq6ajg7",
+      "lastBeat": 1770018794984,
+      "country": "AE",
+      "countryName": "United Arab Emirates",
+      "city": "Dubai",
+      "lat": 25.2048,
+      "lng": 55.2708,
+      "path": "/miniadmin",
+      "action": "view",
+      "cartItems": 0,
+      "device": "desktop",
+      "ip": "::ffff:127.0.0.1"
+    }
+  },
+  "dailyStats": {
+    "date": "2026-02-02",
+    "orders": 0,
+    "revenue": 0,
+    "visitors": [
+      "v_39hq6ajg7",
+      "test_visitor",
+      "jwt2q2eae8a",
+      "v_0x689zzr5i"
+    ]
+  },
+  "historicalVisits": [
+    {
+      "visitorId": "jwt2q2eae8a",
+      "timestamp": 1770015861605,
+      "country": "AE",
+      "countryName": "United Arab Emirates",
+      "ip": "::ffff:192.168.0.163"
+    },
+    {
+      "visitorId": "v_0x689zzr5i",
+      "timestamp": 1770016359246,
+      "country": "AE",
+      "countryName": "United Arab Emirates",
+      "ip": "::ffff:192.168.0.170"
+    },
+    {
+      "visitorId": "v_39hq6ajg7",
+      "timestamp": 1770016913916,
+      "country": "AE",
+      "countryName": "United Arab Emirates",
+      "ip": "::ffff:127.0.0.1"
+    },
+    {
+      "visitorId": "jwt2q2eae8a",
+      "timestamp": 1770016985482,
+      "country": "AE",
+      "countryName": "United Arab Emirates",
+      "ip": "::ffff:192.168.0.163"
+    }
+  ]
+}

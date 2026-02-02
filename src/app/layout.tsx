@@ -8,6 +8,7 @@ import { ApolloProvider } from "@apollo/client";
 import { client } from "@/lib/apollo";
 import PopupManager from "@/components/PopupManager";
 import MembersGuard from "@/components/MembersGuard";
+import LiveTracker from "@/components/LiveTracker";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -37,6 +38,7 @@ export default function RootLayout({
                     <ApolloProvider client={client}>
                         <CurrencyProvider>
                             <PopupManager />
+                            <LiveTracker />
                             <MembersGuard>
                                 {children}
                             </MembersGuard>

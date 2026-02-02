@@ -8,14 +8,18 @@ import {
     LayoutDashboard, Palette, ShoppingBag, Package, Settings, LogOut, Upload,
     Plus, Trash2, Printer, Search, Bell, Menu, X, ChevronRight, Eye, MoreHorizontal,
     ArrowUpRight, GripVertical, Check, Truck, Box, TrendingUp, Puzzle, ShieldCheck, Loader2,
-    Ruler, FileText, Edit3, Instagram, Twitter, Youtube, Music2
+    Ruler, FileText, Edit3, Instagram, Twitter, Youtube, Music2, Globe, Smartphone, Monitor,
+    UsersIcon, CreditCard, CheckCircle2
 } from "lucide-react";
 import Image from "next/image";
+import createGlobe from "cobe";
 import { useQuery } from "@apollo/client";
 import { GET_SHOP_PRODUCTS } from "@/lib/queries";
 import { uploadAdminImage } from "@/lib/uploadFile";
 import ShippingLabelA5 from "@/components/admin/ShippingLabelA5";
 import clsx from "clsx";
+import LiveCounter, { SmoothCounter } from "@/components/admin/LiveCounter";
+import ActivityItem from "@/components/admin/ActivityItem";
 
 // --- ANIMATIONS ---
 const containerVar: any = {
@@ -1091,7 +1095,7 @@ const SizeChartTab = ({ settings, updateSettings }: any) => {
                                                 </thead>
                                                 <tbody>
                                                     {editingChart.rows.map((row: string[], ri: number) => {
-                                                        const getAutoPlaceholder = (val: string) => {
+                                                        const getAutoPlaceholder = (val: string): string => {
                                                             if (!val) return "";
                                                             if (val.includes("-")) {
                                                                 return val.split("-").map(v => getAutoPlaceholder(v.trim())).join("-");
@@ -1498,6 +1502,478 @@ const SettingsTab = ({ settings, updateSettings }: any) => {
     );
 };
 
+// --- LIVE ANALYTICS TAB (Shopify-Style) ---
+
+const LiveViewTab = () => {
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
+    const pointerInteracting = useRef<number | null>(null);
+    const pointerInteractionMovement = useRef(0);
+    const phiRef = useRef(0);
+    const globeRef = useRef<any>(null);
+
+    const [expandedLocation, setExpandedLocation] = useState<string | null>(null);
+    const [visitorPeriod, setVisitorPeriod] = useState<'live' | '24h' | '7d'>('live');
+    const [globeScale, setGlobeScale] = useState(1.15);
+    const scaleRef = useRef(1.15);
+
+    const [stats, setStats] = useState<any>({
+        rightNow: 0,
+        visitors24h: 0,
+        visitors7d: 0,
+        funnel: { viewing: 0, activeCarts: 0, checkingOut: 0, completed: 0 },
+        locations: [],
+        markers: [],
+        pages: [],
+        daily: { date: '', orders: 0, revenue: 0, uniqueVisitors: 0 },
+        devices: { mobile: 0, desktop: 0 },
+        recent: []
+    });
+
+    // Fetch stats every 3 seconds
+    useEffect(() => {
+        const fetchStats = async () => {
+            try {
+                const res = await fetch('/api/analytics/stats');
+                const data = await res.json();
+                setStats(data);
+            } catch (e) {
+                console.error("Stats fetch failed", e);
+            }
+        };
+        fetchStats();
+        const interval = setInterval(fetchStats, 3000);
+        return () => clearInterval(interval);
+    }, []);
+
+    // Interactive Cobe Globe with RESPONSIVE sizing
+    useEffect(() => {
+        if (!canvasRef.current || !containerRef.current) return;
+
+        let globe: any;
+
+        const onResize = () => {
+            if (globe) globe.destroy();
+
+            const w = containerRef.current?.offsetWidth || 600;
+            const h = containerRef.current?.offsetHeight || 600;
+
+            globe = createGlobe(canvasRef.current!, {
+                devicePixelRatio: 2,
+                width: w * 2,
+                height: h * 2,
+                phi: 0,
+                theta: 0.25,
+                dark: 0,
+                diffuse: 1.5,
+                mapSamples: 20000,
+                mapBrightness: 8,
+                baseColor: [0.98, 0.98, 0.98],
+                markerColor: [0.2, 0.5, 1],
+                glowColor: [0.95, 0.95, 0.95],
+                scale: scaleRef.current,
+                markers: stats.markers || [],
+                onRender: (state) => {
+                    if (!pointerInteracting.current) {
+                        phiRef.current += 0.002;
+                    }
+                    state.phi = phiRef.current + pointerInteractionMovement.current;
+                    state.scale = scaleRef.current;
+                },
+            });
+        };
+
+        window.addEventListener('resize', onResize);
+        onResize(); // Initial
+
+        if (canvasRef.current) {
+            canvasRef.current.style.opacity = '1';
+        }
+
+        return () => {
+            window.removeEventListener('resize', onResize);
+            if (globe) globe.destroy();
+        };
+    }, [stats.markers]);
+
+    // Get visitor count based on selected period
+    const getVisitorCount = () => {
+        switch (visitorPeriod) {
+            case 'live': return stats.rightNow;
+            case '24h': return stats.visitors24h || 0;
+            case '7d': return stats.visitors7d || 0;
+            default: return stats.rightNow;
+        }
+    };
+
+    // ... state logic remains same ...
+
+    return (
+        <motion.div variants={containerVar} initial="hidden" animate="show" className="space-y-6 pb-20">
+            {/* Header Row */}
+            <motion.div variants={itemVar} className="flex justify-between items-center">
+                <div>
+                    <div className="flex items-center gap-3">
+                        <h1 className="text-3xl font-bold tracking-tight text-neutral-900">Live View</h1>
+                        <span className="flex items-center gap-1.5 px-2.5 py-0.5 bg-green-50 text-green-600 text-xs font-bold tracking-wide rounded-full border border-green-100">
+                            <span className="relative flex h-2 w-2">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                            </span>
+                            LIVE
+                        </span>
+                    </div>
+                    <p className="text-neutral-500 text-sm mt-1">Real-time activity on your store</p>
+                </div>
+                <div className="text-right text-sm text-neutral-400 font-medium">
+                    Last updated: Just now
+                </div>
+            </motion.div>
+
+            {/* Top Stats Grid */}
+            <motion.div variants={itemVar} className="bg-white rounded-2xl border border-neutral-200/60 shadow-sm p-6">
+                <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-sm font-semibold text-neutral-900">Visitors</h3>
+                    <div className="flex bg-neutral-100 rounded-lg p-1">
+                        {(['live', '24h', '7d'] as const).map((period) => (
+                            <button
+                                key={period}
+                                onClick={() => setVisitorPeriod(period)}
+                                className={clsx(
+                                    "px-4 py-1.5 text-xs font-semibold rounded-md transition-all",
+                                    visitorPeriod === period
+                                        ? "bg-white text-neutral-900 shadow-sm"
+                                        : "text-neutral-500 hover:text-neutral-700"
+                                )}
+                            >
+                                {period === 'live' ? 'Live' : period === '24h' ? '24 Hours' : '7 Days'}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {/* Card 1: Main Metric */}
+                    <div className="bg-neutral-50/50 p-5 rounded-xl border border-neutral-100 relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                            <UsersIcon className="w-16 h-16 text-neutral-900" />
+                        </div>
+                        <p className="text-neutral-500 text-xs font-bold uppercase tracking-wider">
+                            {visitorPeriod === 'live' ? 'Right Now' : visitorPeriod === '24h' ? 'Last 24h' : 'Last 7 Days'}
+                        </p>
+                        <div className="mt-2 flex items-baseline gap-2">
+                            <SmoothCounter value={getVisitorCount()} className="text-5xl font-black text-neutral-900 tracking-tight" />
+                        </div>
+                        <p className="text-neutral-400 text-xs mt-2 font-medium">
+                            {visitorPeriod === 'live' ? 'Active on site' : 'Unique visitors'}
+                        </p>
+                    </div>
+
+                    {/* Card 2: Today */}
+                    <div className="bg-white p-5 rounded-xl border border-neutral-100">
+                        <p className="text-neutral-500 text-xs font-bold uppercase tracking-wider">Today</p>
+                        <div className="mt-2">
+                            <h2 className="text-4xl font-bold text-neutral-900 tracking-tight">{stats.daily?.uniqueVisitors || 0}</h2>
+                        </div>
+                        <p className="text-neutral-400 text-xs mt-2 font-medium">Total sessions</p>
+                    </div>
+
+                    {/* Card 3: Orders */}
+                    <div className="bg-white p-5 rounded-xl border border-neutral-100">
+                        <p className="text-neutral-500 text-xs font-bold uppercase tracking-wider">Orders</p>
+                        <div className="mt-2">
+                            <h2 className="text-4xl font-bold text-neutral-900 tracking-tight">{stats.daily?.orders || 0}</h2>
+                        </div>
+                        <p className="text-neutral-400 text-xs mt-2 font-medium">Completed today</p>
+                    </div>
+
+                    {/* Card 4: Revenue */}
+                    <div className="bg-neutral-900 text-white p-5 rounded-xl shadow-lg shadow-neutral-200">
+                        <p className="text-neutral-400 text-xs font-bold uppercase tracking-wider">Revenue</p>
+                        <div className="mt-2">
+                            <h2 className="text-4xl font-bold tracking-tight">AED {stats.daily?.revenue?.toLocaleString() || 0}</h2>
+                        </div>
+                        <p className="text-neutral-500 text-xs mt-2 font-medium">Gross sales</p>
+                    </div>
+                </div>
+            </motion.div>
+
+            {/* Middle Row: Globe & Behavior */}
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+
+                {/* Globe Container */}
+                <motion.div
+                    variants={itemVar}
+                    ref={containerRef}
+                    className="lg:col-span-3 bg-white rounded-2xl border border-neutral-200/60 shadow-sm relative overflow-hidden"
+                    style={{ minHeight: '520px' }}
+                >
+                    <div className="absolute top-6 left-6 z-10 pointer-events-none">
+                        <h3 className="text-sm font-semibold text-neutral-900 bg-white/50 backdrop-blur-sm px-3 py-1 rounded-full border border-neutral-100/50">
+                            Live Geography
+                        </h3>
+                    </div>
+
+                    <div className="absolute top-6 right-6 z-10 flex flex-col gap-2 pointer-events-none">
+                        <div className="flex items-center gap-2 bg-white/80 backdrop-blur-md px-3 py-1.5 rounded-lg border border-neutral-100 shadow-sm">
+                            <Smartphone size={14} className="text-neutral-500" />
+                            <span className="text-xs font-bold text-neutral-700">{stats.devices?.mobile || 0}</span>
+                        </div>
+                        <div className="flex items-center gap-2 bg-white/80 backdrop-blur-md px-3 py-1.5 rounded-lg border border-neutral-100 shadow-sm">
+                            <Monitor size={14} className="text-neutral-500" />
+                            <span className="text-xs font-bold text-neutral-700">{stats.devices?.desktop || 0}</span>
+                        </div>
+                    </div>
+
+                    {/* Zoom Controls */}
+                    <div className="absolute bottom-6 right-6 z-10 flex flex-col gap-1">
+                        <button
+                            onClick={() => {
+                                scaleRef.current = Math.min(2.5, scaleRef.current + 0.15);
+                                setGlobeScale(scaleRef.current);
+                            }}
+                            className="w-9 h-9 bg-white/90 backdrop-blur-sm rounded-lg border border-neutral-200 shadow-sm flex items-center justify-center text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900 transition-colors font-bold text-lg"
+                            title="Zoom In"
+                        >
+                            +
+                        </button>
+                        <button
+                            onClick={() => {
+                                scaleRef.current = Math.max(0.5, scaleRef.current - 0.15);
+                                setGlobeScale(scaleRef.current);
+                            }}
+                            className="w-9 h-9 bg-white/90 backdrop-blur-sm rounded-lg border border-neutral-200 shadow-sm flex items-center justify-center text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900 transition-colors font-bold text-lg"
+                            title="Zoom Out"
+                        >
+                            −
+                        </button>
+                    </div>
+
+                    <div
+                        className="flex items-center justify-center h-full w-full absolute inset-0"
+                        onWheel={(e) => {
+                            e.preventDefault();
+                            const delta = e.deltaY > 0 ? -0.08 : 0.08;
+                            scaleRef.current = Math.max(0.5, Math.min(2.5, scaleRef.current + delta));
+                            setGlobeScale(scaleRef.current);
+                        }}
+                    >
+                        <canvas
+                            ref={canvasRef}
+                            onPointerDown={(e) => {
+                                pointerInteracting.current = e.clientX - pointerInteractionMovement.current * 100;
+                                if (canvasRef.current) canvasRef.current.style.cursor = 'grabbing';
+                            }}
+                            onPointerUp={() => {
+                                pointerInteracting.current = null;
+                                if (canvasRef.current) canvasRef.current.style.cursor = 'grab';
+                            }}
+                            onPointerOut={() => {
+                                pointerInteracting.current = null;
+                                if (canvasRef.current) canvasRef.current.style.cursor = 'grab';
+                            }}
+                            onMouseMove={(e) => {
+                                if (pointerInteracting.current !== null) {
+                                    const delta = e.clientX - pointerInteracting.current;
+                                    pointerInteractionMovement.current = delta / 100;
+                                }
+                            }}
+                            onTouchMove={(e) => {
+                                if (pointerInteracting.current !== null && e.touches[0]) {
+                                    const delta = e.touches[0].clientX - pointerInteracting.current;
+                                    pointerInteractionMovement.current = delta / 100;
+                                }
+                            }}
+                            style={{
+                                width: '100%',
+                                height: '100%',
+                                cursor: 'grab',
+                                opacity: 0,
+                                transition: 'opacity 0.8s ease'
+                            }}
+                        />
+                    </div>
+                </motion.div>
+
+                {/* Vertical Stack: Funnel + Top Locations */}
+                <div className="lg:col-span-2 flex flex-col gap-6">
+
+                    {/* Behavior / Funnel */}
+                    <motion.div variants={itemVar} className="bg-white rounded-2xl border border-neutral-200/60 shadow-sm p-6 flex-1">
+                        <h3 className="text-sm font-semibold text-neutral-900 mb-6">Live Funnel (10m)</h3>
+                        <div className="space-y-5">
+                            <div>
+                                <div className="flex justify-between mb-2">
+                                    <div className="flex items-center gap-2">
+                                        <div className="p-1.5 bg-blue-50 text-blue-600 rounded-md">
+                                            <ShoppingBag size={14} />
+                                        </div>
+                                        <span className="text-sm font-medium text-neutral-700">Active Carts</span>
+                                    </div>
+                                    <span className="text-lg font-bold text-neutral-900">{stats.funnel?.activeCarts || 0}</span>
+                                </div>
+                                <div className="w-full bg-neutral-100 rounded-full h-1.5 overflow-hidden">
+                                    <motion.div
+                                        initial={{ width: 0 }}
+                                        animate={{ width: `${Math.min(100, (stats.funnel?.activeCarts || 0) * 10)}%` }}
+                                        className="bg-blue-500 h-full rounded-full"
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                <div className="flex justify-between mb-2">
+                                    <div className="flex items-center gap-2">
+                                        <div className="p-1.5 bg-amber-50 text-amber-600 rounded-md">
+                                            <CreditCard size={14} />
+                                        </div>
+                                        <span className="text-sm font-medium text-neutral-700">Checking Out</span>
+                                    </div>
+                                    <span className="text-lg font-bold text-neutral-900">{stats.funnel?.checkingOut || 0}</span>
+                                </div>
+                                <div className="w-full bg-neutral-100 rounded-full h-1.5 overflow-hidden">
+                                    <motion.div
+                                        initial={{ width: 0 }}
+                                        animate={{ width: `${Math.min(100, (stats.funnel?.checkingOut || 0) * 15)}%` }}
+                                        className="bg-amber-500 h-full rounded-full"
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                <div className="flex justify-between mb-2">
+                                    <div className="flex items-center gap-2">
+                                        <div className="p-1.5 bg-green-50 text-green-600 rounded-md">
+                                            <CheckCircle2 size={14} />
+                                        </div>
+                                        <span className="text-sm font-medium text-neutral-700">Purchased</span>
+                                    </div>
+                                    <span className="text-lg font-bold text-neutral-900">{stats.funnel?.completed || 0}</span>
+                                </div>
+                                <div className="w-full bg-neutral-100 rounded-full h-1.5 overflow-hidden">
+                                    <motion.div
+                                        initial={{ width: 0 }}
+                                        animate={{ width: `${Math.min(100, (stats.funnel?.completed || 0) * 20)}%` }}
+                                        className="bg-green-500 h-full rounded-full"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </motion.div>
+
+                    {/* Top Locations */}
+                    <motion.div variants={itemVar} className="bg-white rounded-2xl border border-neutral-200/60 shadow-sm p-6 flex-1 overflow-hidden">
+                        <h3 className="text-sm font-semibold text-neutral-900 mb-4">Top Locations</h3>
+                        <div className="space-y-1 max-h-[220px] overflow-y-auto pr-2 custom-scrollbar">
+                            {(stats.locations || []).slice(0, 5).map((loc: any, i: number) => (
+                                <div key={i}>
+                                    <button
+                                        onClick={() => setExpandedLocation(expandedLocation === loc.code ? null : loc.code)}
+                                        className="w-full flex items-center justify-between py-2.5 px-3 rounded-lg hover:bg-neutral-50 transition-colors group"
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-6 h-6 rounded bg-neutral-100 flex items-center justify-center text-[10px] font-bold text-neutral-600 group-hover:bg-white group-hover:shadow-sm transition-all">
+                                                {loc.code}
+                                            </div>
+                                            <span className="text-sm font-medium text-neutral-700">{loc.name}</span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-xs font-bold text-neutral-900 bg-neutral-100 px-2 py-0.5 rounded-full">{loc.count}</span>
+                                            <ChevronRight
+                                                size={14}
+                                                className={clsx(
+                                                    "text-neutral-400 transition-transform duration-200",
+                                                    expandedLocation === loc.code && "rotate-90"
+                                                )}
+                                            />
+                                        </div>
+                                    </button>
+                                    <AnimatePresence>
+                                        {expandedLocation === loc.code && loc.visitors && (
+                                            <motion.div
+                                                initial={{ height: 0, opacity: 0 }}
+                                                animate={{ height: 'auto', opacity: 1 }}
+                                                exit={{ height: 0, opacity: 0 }}
+                                                className="overflow-hidden"
+                                            >
+                                                <div className="ml-10 pl-4 border-l border-neutral-100 py-2 space-y-2">
+                                                    {loc.visitors.map((visitor: any, j: number) => (
+                                                        <div key={j} className="text-xs space-y-0.5">
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="font-mono text-neutral-500">{visitor.ip}</span>
+                                                                <span className="text-neutral-300">•</span>
+                                                                <span className="text-neutral-500 font-medium">{visitor.city}</span>
+                                                            </div>
+                                                            <div className="text-neutral-400 truncate max-w-[150px]">{visitor.path}</div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+                                </div>
+                            ))}
+                            {(stats.locations?.length || 0) === 0 && (
+                                <div className="text-center py-8 text-neutral-400 text-sm">No location data available</div>
+                            )}
+                        </div>
+                    </motion.div>
+                </div>
+            </div>
+
+            {/* Bottom Row: Active Pages & Recent Activity */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+                {/* Active Pages */}
+                <motion.div variants={itemVar} className="bg-white rounded-2xl border border-neutral-200/60 shadow-sm p-6">
+                    <h3 className="text-sm font-semibold text-neutral-900 mb-4">Active Pages</h3>
+                    <div className="space-y-1">
+                        {(stats.pages || []).slice(0, 6).map((page: any, i: number) => (
+                            <div key={i} className="flex items-center justify-between py-2.5 px-2 border-b border-neutral-50 last:border-0 hover:bg-neutral-50 rounded-lg transition-colors">
+                                <div className="flex items-center gap-3 overflow-hidden">
+                                    <div className="p-1.5 bg-neutral-100 rounded text-neutral-500">
+                                        <FileText size={14} />
+                                    </div>
+                                    <span className="text-sm text-neutral-600 truncate font-medium">{page.path}</span>
+                                </div>
+                                <span className="text-xs font-bold bg-neutral-900 text-white px-2 py-0.5 rounded-md shadow-sm">{page.count}</span>
+                            </div>
+                        ))}
+                        {(stats.pages?.length || 0) === 0 && (
+                            <div className="text-center py-10 text-neutral-400 text-sm">No active pages</div>
+                        )}
+                    </div>
+                </motion.div>
+
+                {/* Recent Activity Feed */}
+                <motion.div variants={itemVar} className="bg-white rounded-2xl border border-neutral-200/60 shadow-sm p-6">
+                    <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-sm font-semibold text-neutral-900">Recent Activity</h3>
+                        <div className="flex items-center gap-1.5">
+                            <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+                            <span className="text-xs font-medium text-neutral-500">Live Feed</span>
+                        </div>
+                    </div>
+
+                    <div className="space-y-1 max-h-[300px] overflow-y-auto custom-scrollbar pr-1">
+                        <AnimatePresence mode="popLayout">
+                            {(stats.recent || []).slice(0, 8).map((activity: any, i: number) => (
+                                <ActivityItem key={`${activity.path}-${i}-${activity.ago}`} item={activity} />
+                            ))}
+                        </AnimatePresence>
+                        {(stats.recent?.length || 0) === 0 && (
+                            <div className="text-center py-10 text-neutral-400 text-sm">Waiting for visitors...</div>
+                        )}
+                    </div>
+                </motion.div>
+            </div>
+        </motion.div>
+    );
+
+
+};
+
+
 // --- MAIN LAYOUT ---
 
 export default function MiniAdminPage() {
@@ -1552,6 +2028,7 @@ export default function MiniAdminPage() {
                 <nav className="flex-1 px-4 space-y-2 py-8 overflow-y-auto">
                     {[
                         { id: "dashboard", icon: LayoutDashboard, label: "Overview" },
+                        { id: "live", icon: Globe, label: "Live View" }, // NEW LIVE VIEW
                         { id: "addons", icon: Puzzle, label: "Addons" }, // New Addons Tab
                         { id: "content", icon: Palette, label: "Experience" },
                         { id: "commerce", icon: ShoppingBag, label: "Commerce" },
@@ -1606,6 +2083,7 @@ export default function MiniAdminPage() {
                             transition={{ duration: 0.3, ease: "easeOut" }}
                         >
                             {activeTab === "dashboard" && <DashboardTab settings={settings} />}
+                            {activeTab === "live" && <LiveViewTab />}
                             {activeTab === "addons" && <AddonsTab settings={settings} updateSettings={updateSettings} />} {/* Render New Tab */}
                             {activeTab === "content" && <ContentTab settings={settings} updateSettings={updateSettings} initiateUpload={initiateFileUpload} />}
                             {activeTab === "commerce" && <CommerceTab settings={settings} calculateOrderProfit={calculateOrderProfit} updateSettings={updateSettings} />}

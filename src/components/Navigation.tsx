@@ -22,10 +22,8 @@ export default function Navigation({ theme = "dark" }: NavigationProps) {
     const [searchQuery, setSearchQuery] = useState("");
     const [cartOpen, setCartOpen] = useState(false);
 
-    // Cart Query - Full data for drawer
     const { data: cartData, refetch: refetchCart, error } = useQuery(GET_CART, {
-        pollInterval: 5000,
-        fetchPolicy: "network-only",
+        fetchPolicy: "cache-and-network",
         notifyOnNetworkStatusChange: true
     });
 

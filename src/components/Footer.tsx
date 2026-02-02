@@ -66,10 +66,11 @@ export default function Footer() {
                             className="flex flex-col gap-6"
                         >
                             <h4 className="text-[10px] font-bold text-neutral-700 uppercase tracking-[0.6em] mb-4">Service</h4>
-                            <FooterLink href="#">Shipping</FooterLink>
-                            <FooterLink href="#">Returns</FooterLink>
-                            <FooterLink href="#">Contact</FooterLink>
-                            <FooterLink href="#">FAQ</FooterLink>
+                            <FooterLink href="/shipping">Shipping</FooterLink>
+                            <FooterLink href="/returns">Returns</FooterLink>
+                            <FooterLink href="/terms">Terms</FooterLink>
+                            <FooterLink href="/privacy">Privacy</FooterLink>
+                            <FooterLink href="/faq">FAQ</FooterLink>
                         </motion.div>
                     </div>
 
