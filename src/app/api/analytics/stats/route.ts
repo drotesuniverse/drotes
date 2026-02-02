@@ -1,27 +1,27 @@
 import { NextResponse } from 'next/server';
-import { redis, REDIS_KEYS } from '@/lib/redis';
+import { initializeApp, getApps, cert } from 'firebase-admin/app';
+import { getDatabase } from 'firebase-admin/database';
 
-interface Visitor {
-    id: string;
-    lastBeat: number;
-    country: string;
-    countryName: string;
-    city: string;
-    lat: number;
-    lng: number;
-    path: string;
-    action: 'view' | 'cart' | 'checkout' | 'complete';
-    cartItems: number;
-    device: 'mobile' | 'desktop';
-    ip: string;
-}
+// Initialize Firebase Admin (server-side)
+let db: ReturnType<typeof getDatabase> | null = null;
 
-interface HistoricalVisit {
-    visitorId: string;
-    timestamp: number;
-    country: string;
-    countryName: string;
-    ip: string;
+try {
+    if (!getApps().length) {
+        if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+            const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+            initializeApp({
+                credential: cert(serviceAccount),
+                databaseURL: 'https://otp-drotes-default-rtdb.firebaseio.com'
+            });
+        } else {
+            initializeApp({
+                databaseURL: 'https://otp-drotes-default-rtdb.firebaseio.com'
+            });
+        }
+    }
+    db = getDatabase();
+} catch (e) {
+    console.warn('[Analytics] Firebase Admin init failed:', e);
 }
 
 function getTodayDate(): string {
@@ -29,11 +29,15 @@ function getTodayDate(): string {
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 }
 
+function getDateNDaysAgo(n: number): string {
+    const d = new Date();
+    d.setDate(d.getDate() - n);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
 export async function GET() {
     try {
-        // Check Redis availability
-        if (!redis) {
-            console.warn('[Analytics] Redis not configured');
+        if (!db) {
             return NextResponse.json({
                 rightNow: 0,
                 visitors24h: 0,
@@ -45,55 +49,51 @@ export async function GET() {
                 daily: { date: getTodayDate(), orders: 0, revenue: 0, uniqueVisitors: 0 },
                 devices: { mobile: 0, desktop: 0 },
                 recent: [],
-                warning: 'Redis not configured'
+                warning: 'Firebase not configured'
             });
         }
 
         const now = Date.now();
         const fiveMinutesAgo = now - 5 * 60 * 1000;
         const tenMinutesAgo = now - 10 * 60 * 1000;
-        const twentyFourHoursAgo = now - 24 * 60 * 60 * 1000;
-        const sevenDaysAgo = now - 7 * 24 * 60 * 60 * 1000;
+        const today = getTodayDate();
 
-        // Get all visitors from Redis hash
-        const rawVisitors = await redis.hgetall(REDIS_KEYS.VISITORS);
-        const allVisitors: Visitor[] = [];
-
-        for (const v of Object.values(rawVisitors || {})) {
-            try {
-                const parsed = typeof v === 'string' ? JSON.parse(v) : v as Visitor;
-                allVisitors.push(parsed);
-            } catch { }
-        }
+        // Get live visitors
+        const liveSnapshot = await db.ref('visitors/live').once('value');
+        const liveData = liveSnapshot.val() || {};
 
         // Filter active visitors (last 5 minutes)
-        const activeVisitors = allVisitors.filter(v => v.lastBeat > fiveMinutesAgo);
-
-        // Get historical visits for 24h/7d counts
-        const historicalRaw = await redis.lrange(REDIS_KEYS.HISTORICAL, 0, 9999);
-        const historicalVisits: HistoricalVisit[] = [];
-
-        for (const h of historicalRaw || []) {
-            try {
-                const parsed = typeof h === 'string' ? JSON.parse(h) : h as HistoricalVisit;
-                historicalVisits.push(parsed);
-            } catch { }
+        const activeVisitors: any[] = [];
+        for (const visitor of Object.values(liveData)) {
+            const v = visitor as any;
+            if (v.lastBeat > fiveMinutesAgo) {
+                activeVisitors.push(v);
+            }
         }
 
-        const visitors24h = new Set(
-            historicalVisits
-                .filter(v => v.timestamp > twentyFourHoursAgo)
-                .map(v => v.visitorId)
-        ).size;
+        // Get 24h and 7d visitor counts from history
+        let visitors24h = 0;
+        let visitors7d = 0;
+        const uniqueIds24h = new Set<string>();
+        const uniqueIds7d = new Set<string>();
 
-        const visitors7d = new Set(
-            historicalVisits
-                .filter(v => v.timestamp > sevenDaysAgo)
-                .map(v => v.visitorId)
-        ).size;
+        for (let i = 0; i < 7; i++) {
+            const dateKey = getDateNDaysAgo(i);
+            const historySnapshot = await db.ref(`visitors/history/${dateKey}`).once('value');
+            const historyData = historySnapshot.val() || {};
 
-        // Behavioral funnel (last 10 minutes)
-        const recentVisitors = allVisitors.filter(v => v.lastBeat > tenMinutesAgo);
+            for (const visitorId of Object.keys(historyData)) {
+                uniqueIds7d.add(visitorId);
+                if (i === 0) {
+                    uniqueIds24h.add(visitorId);
+                }
+            }
+        }
+        visitors24h = uniqueIds24h.size;
+        visitors7d = uniqueIds7d.size;
+
+        // Funnel (last 10 minutes)
+        const recentVisitors = Object.values(liveData).filter((v: any) => v.lastBeat > tenMinutesAgo) as any[];
         const funnel = {
             viewing: recentVisitors.filter(v => v.action === 'view').length,
             activeCarts: recentVisitors.filter(v => v.action === 'cart').length,
@@ -102,14 +102,7 @@ export async function GET() {
         };
 
         // Location breakdown
-        const locationMap: Record<string, {
-            count: number;
-            countryName: string;
-            lat: number;
-            lng: number;
-            visitors: { id: string; ip: string; city: string; path: string }[];
-        }> = {};
-
+        const locationMap: Record<string, any> = {};
         for (const visitor of activeVisitors) {
             if (!locationMap[visitor.country]) {
                 locationMap[visitor.country] = {
@@ -122,7 +115,7 @@ export async function GET() {
             }
             locationMap[visitor.country].count++;
             locationMap[visitor.country].visitors.push({
-                id: visitor.id.slice(0, 8),
+                id: visitor.id?.slice(0, 8) || 'unknown',
                 ip: visitor.ip,
                 city: visitor.city,
                 path: visitor.path
@@ -135,13 +128,11 @@ export async function GET() {
             size: 0.06
         }));
 
-        // Daily stats from Redis
-        const today = getTodayDate();
-        const dailyKey = `${REDIS_KEYS.DAILY_STATS}:${today}`;
-        const dailyData = await redis.hgetall(dailyKey);
-        const uniqueVisitorCount = await redis.scard(`${dailyKey}:visitors`);
+        // Daily stats
+        const dailyStatsSnapshot = await db.ref(`visitors/dailyStats/${today}`).once('value');
+        const dailyStats = dailyStatsSnapshot.val() || { orders: 0, revenue: 0 };
 
-        // Active pages
+        // Pages
         const pageMap: Record<string, number> = {};
         for (const visitor of activeVisitors) {
             pageMap[visitor.path] = (pageMap[visitor.path] || 0) + 1;
@@ -169,9 +160,9 @@ export async function GET() {
                 .map(([path, count]) => ({ path, count })),
             daily: {
                 date: today,
-                orders: parseInt(String(dailyData?.orders || 0)),
-                revenue: parseFloat(String(dailyData?.revenue || 0)),
-                uniqueVisitors: uniqueVisitorCount || 0
+                orders: dailyStats.orders || 0,
+                revenue: dailyStats.revenue || 0,
+                uniqueVisitors: visitors24h
             },
             devices: {
                 mobile: activeVisitors.filter(v => v.device === 'mobile').length,
@@ -181,16 +172,14 @@ export async function GET() {
                 .sort((a, b) => b.lastBeat - a.lastBeat)
                 .slice(0, 8)
                 .map(v => ({
-                    id: v.id.slice(0, 8),
+                    id: v.id?.slice(0, 8) || 'unknown',
                     country: v.countryName,
                     action: v.action,
                     path: v.path,
                     ago: Math.round((now - v.lastBeat) / 1000)
                 }))
         }, {
-            headers: {
-                'Cache-Control': 'no-store, max-age=0'
-            }
+            headers: { 'Cache-Control': 'no-store, max-age=0' }
         });
 
     } catch (error) {
