@@ -1,8 +1,5 @@
 import { NextResponse } from 'next/server';
-import { promises as fs } from 'fs';
-import path from 'path';
-
-const DATA_FILE = path.join(process.cwd(), 'src/data/analytics-live.json');
+import { redis, REDIS_KEYS } from '@/lib/redis';
 
 interface Visitor {
     id: string;
@@ -27,35 +24,6 @@ interface HistoricalVisit {
     ip: string;
 }
 
-interface AnalyticsData {
-    visitors: Record<string, Visitor>;
-    dailyStats: {
-        date: string;
-        orders: number;
-        revenue: number;
-        visitors: string[];
-    };
-    historicalVisits: HistoricalVisit[];
-}
-
-async function readData(): Promise<AnalyticsData> {
-    try {
-        const content = await fs.readFile(DATA_FILE, 'utf-8');
-        const parsed = JSON.parse(content);
-        return {
-            visitors: parsed.visitors || {},
-            dailyStats: parsed.dailyStats || { date: '', orders: 0, revenue: 0, visitors: [] },
-            historicalVisits: parsed.historicalVisits || []
-        };
-    } catch {
-        return {
-            visitors: {},
-            dailyStats: { date: '', orders: 0, revenue: 0, visitors: [] },
-            historicalVisits: []
-        };
-    }
-}
-
 function getTodayDate(): string {
     const now = new Date();
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
@@ -63,36 +31,69 @@ function getTodayDate(): string {
 
 export async function GET() {
     try {
-        const data = await readData();
+        // Check Redis availability
+        if (!redis) {
+            console.warn('[Analytics] Redis not configured');
+            return NextResponse.json({
+                rightNow: 0,
+                visitors24h: 0,
+                visitors7d: 0,
+                funnel: { viewing: 0, activeCarts: 0, checkingOut: 0, completed: 0 },
+                locations: [],
+                markers: [],
+                pages: [],
+                daily: { date: getTodayDate(), orders: 0, revenue: 0, uniqueVisitors: 0 },
+                devices: { mobile: 0, desktop: 0 },
+                recent: [],
+                warning: 'Redis not configured'
+            });
+        }
+
         const now = Date.now();
         const fiveMinutesAgo = now - 5 * 60 * 1000;
         const tenMinutesAgo = now - 10 * 60 * 1000;
         const twentyFourHoursAgo = now - 24 * 60 * 60 * 1000;
         const sevenDaysAgo = now - 7 * 24 * 60 * 60 * 1000;
 
-        // Filter active visitors (last 5 minutes for "Right Now")
-        const activeVisitors: Visitor[] = [];
-        for (const visitor of Object.values(data.visitors)) {
-            if (visitor.lastBeat > fiveMinutesAgo) {
-                activeVisitors.push(visitor);
-            }
+        // Get all visitors from Redis hash
+        const rawVisitors = await redis.hgetall(REDIS_KEYS.VISITORS);
+        const allVisitors: Visitor[] = [];
+
+        for (const v of Object.values(rawVisitors || {})) {
+            try {
+                const parsed = typeof v === 'string' ? JSON.parse(v) : v as Visitor;
+                allVisitors.push(parsed);
+            } catch { }
         }
 
-        // Historical visitor counts from historicalVisits array
+        // Filter active visitors (last 5 minutes)
+        const activeVisitors = allVisitors.filter(v => v.lastBeat > fiveMinutesAgo);
+
+        // Get historical visits for 24h/7d counts
+        const historicalRaw = await redis.lrange(REDIS_KEYS.HISTORICAL, 0, 9999);
+        const historicalVisits: HistoricalVisit[] = [];
+
+        for (const h of historicalRaw || []) {
+            try {
+                const parsed = typeof h === 'string' ? JSON.parse(h) : h as HistoricalVisit;
+                historicalVisits.push(parsed);
+            } catch { }
+        }
+
         const visitors24h = new Set(
-            data.historicalVisits
+            historicalVisits
                 .filter(v => v.timestamp > twentyFourHoursAgo)
                 .map(v => v.visitorId)
         ).size;
 
         const visitors7d = new Set(
-            data.historicalVisits
+            historicalVisits
                 .filter(v => v.timestamp > sevenDaysAgo)
                 .map(v => v.visitorId)
         ).size;
 
         // Behavioral funnel (last 10 minutes)
-        const recentVisitors = Object.values(data.visitors).filter(v => v.lastBeat > tenMinutesAgo);
+        const recentVisitors = allVisitors.filter(v => v.lastBeat > tenMinutesAgo);
         const funnel = {
             viewing: recentVisitors.filter(v => v.action === 'view').length,
             activeCarts: recentVisitors.filter(v => v.action === 'cart').length,
@@ -100,7 +101,7 @@ export async function GET() {
             completed: recentVisitors.filter(v => v.action === 'complete').length
         };
 
-        // Location breakdown with visitor IPs for detail view
+        // Location breakdown
         const locationMap: Record<string, {
             count: number;
             countryName: string;
@@ -128,18 +129,17 @@ export async function GET() {
             });
         }
 
-        // Convert to array format for globe markers
+        // Globe markers
         const markers = activeVisitors.map(v => ({
             location: [v.lat, v.lng],
             size: 0.06
         }));
 
-        // Daily stats with date check
+        // Daily stats from Redis
         const today = getTodayDate();
-        let dailyStats = data.dailyStats;
-        if (dailyStats.date !== today) {
-            dailyStats = { date: today, orders: 0, revenue: 0, visitors: [] };
-        }
+        const dailyKey = `${REDIS_KEYS.DAILY_STATS}:${today}`;
+        const dailyData = await redis.hgetall(dailyKey);
+        const uniqueVisitorCount = await redis.scard(`${dailyKey}:visitors`);
 
         // Active pages
         const pageMap: Record<string, number> = {};
@@ -148,17 +148,10 @@ export async function GET() {
         }
 
         return NextResponse.json({
-            // Real-time metrics
             rightNow: activeVisitors.length,
-
-            // Historical visitor counts
             visitors24h,
             visitors7d,
-
-            // Behavioral funnel (10 min)
             funnel,
-
-            // Location data with visitor IPs
             locations: Object.entries(locationMap)
                 .sort((a, b) => b[1].count - a[1].count)
                 .map(([code, data]) => ({
@@ -167,33 +160,23 @@ export async function GET() {
                     count: data.count,
                     lat: data.lat,
                     lng: data.lng,
-                    visitors: data.visitors // Include visitor details for expandable view
+                    visitors: data.visitors
                 })),
-
-            // Globe markers
             markers,
-
-            // Active pages
             pages: Object.entries(pageMap)
                 .sort((a, b) => b[1] - a[1])
                 .slice(0, 10)
                 .map(([path, count]) => ({ path, count })),
-
-            // Daily aggregates
             daily: {
-                date: dailyStats.date,
-                orders: dailyStats.orders,
-                revenue: dailyStats.revenue,
-                uniqueVisitors: dailyStats.visitors?.length || 0
+                date: today,
+                orders: parseInt(String(dailyData?.orders || 0)),
+                revenue: parseFloat(String(dailyData?.revenue || 0)),
+                uniqueVisitors: uniqueVisitorCount || 0
             },
-
-            // Device breakdown
             devices: {
                 mobile: activeVisitors.filter(v => v.device === 'mobile').length,
                 desktop: activeVisitors.filter(v => v.device === 'desktop').length
             },
-
-            // Recent activity feed
             recent: activeVisitors
                 .sort((a, b) => b.lastBeat - a.lastBeat)
                 .slice(0, 8)
