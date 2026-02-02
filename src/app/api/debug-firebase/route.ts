@@ -1,65 +1,54 @@
-import { NextResponse } from 'next/server';
-import { initializeApp, getApps, cert } from 'firebase-admin/app';
-import { getDatabase } from 'firebase-admin/database';
+import { NextRequest, NextResponse } from 'next/server';
 
-// Re-implement init logic to test it directly
-function getDb() {
-    try {
-        if (!getApps().length) {
-            if (process.env.FIREBASE_SERVICE_ACCOUNT) {
-                const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
-                initializeApp({
-                    credential: cert(serviceAccount),
-                    databaseURL: 'https://otp-drotes-default-rtdb.firebaseio.com'
-                });
-            } else {
-                initializeApp({
-                    databaseURL: 'https://otp-drotes-default-rtdb.firebaseio.com'
-                });
-            }
-        }
-        return getDatabase();
-    } catch (e) {
-        throw e;
-    }
-}
+// Direct REST API URL for Firebase Realtime Database
+// Using the URL provided by the user
+const FIREBASE_DB_URL = 'https://otp-drotes-default-rtdb.firebaseio.com';
 
 export async function GET() {
     const results = {
-        step1_init: 'pending',
-        step2_write: 'pending',
-        step3_read: 'pending',
+        method: 'REST API',
+        step1_write: 'pending',
+        step2_read: 'pending',
         error: null as any
     };
 
     try {
-        // Step 1: Init
-        const db = getDb();
-        results.step1_init = 'success';
-
-        // Step 2: Write Test
-        const testRef = db.ref('debug/connection_test');
+        // Step 1: Write Test via REST
+        results.step1_write = 'attempting...';
         const timestamp = Date.now();
-        await testRef.set({
-            status: 'online',
-            timestamp: timestamp
+        const writeRes = await fetch(`${FIREBASE_DB_URL}/debug/connection_test.json`, {
+            method: 'PUT',
+            body: JSON.stringify({
+                status: 'online_rest',
+                timestamp: timestamp
+            })
         });
-        results.step2_write = 'success';
 
-        // Step 3: Read Test
-        const snapshot = await testRef.once('value');
-        const val = snapshot.val();
+        if (!writeRes.ok) {
+            throw new Error(`Write failed: ${writeRes.status} ${writeRes.statusText}`);
+        }
+        results.step1_write = 'success';
 
-        if (val && val.timestamp === timestamp) {
-            results.step3_read = 'success';
+        // Step 2: Read Test via REST
+        results.step2_read = 'attempting...';
+        const readRes = await fetch(`${FIREBASE_DB_URL}/debug/connection_test.json`);
+
+        if (!readRes.ok) {
+            throw new Error(`Read failed: ${readRes.status} ${readRes.statusText}`);
+        }
+
+        const data = await readRes.json();
+
+        if (data && data.timestamp === timestamp) {
+            results.step2_read = 'success';
         } else {
-            results.step3_read = 'failed: data mismatch';
+            results.step2_read = 'failed: data mismatch';
         }
 
         return NextResponse.json({ success: true, results });
 
     } catch (error: any) {
-        results.error = error.message || error;
+        results.error = error.message || String(error);
         return NextResponse.json({ success: false, results }, { status: 500 });
     }
 }
