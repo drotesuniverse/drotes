@@ -54,17 +54,18 @@ export async function GET(req: NextRequest) {
             detectedCountry = response.country;
         }
 
-        // Tier 3: External IP API (For Local/VPS/Non-Vercel)
+        // Tier 3: External IP API (For Local/VPS/Non-Vercel) - MUST USE HTTPS
         if (!detectedCountry) {
             try {
-                // Use client IP if available, otherwise API defaults to caller's IP (useful for local dev)
+                // Use client IP if available, otherwise API defaults to caller's IP
                 const queryIp = (clientIp && clientIp !== '::1' && clientIp !== '127.0.0.1') ? clientIp : '';
-                const ipRes = await fetch(`http://ip-api.com/json/${queryIp}`, { signal: AbortSignal.timeout(3000) });
+                // Use ipapi.co (free HTTPS, no API key, 1000/day)
+                const ipRes = await fetch(`https://ipapi.co/${queryIp}/json/`, { signal: AbortSignal.timeout(3000) });
                 if (ipRes.ok) {
                     const ipData = await ipRes.json();
-                    if (ipData?.status === 'success' && ipData?.countryCode) {
-                        detectedCountry = ipData.countryCode;
-                        console.log(`[API] Detected Country via IP-API: ${detectedCountry} (IP: ${queryIp || 'Self'})`);
+                    if (ipData?.country_code) {
+                        detectedCountry = ipData.country_code;
+                        console.log(`[API] Detected Country via ipapi.co: ${detectedCountry} (IP: ${queryIp || 'Self'})`);
                     }
                 }
             } catch (err) {
