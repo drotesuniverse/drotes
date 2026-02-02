@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { promises as fs } from 'fs';
-import path from 'path';
-
-const DATA_FILE = path.join(process.cwd(), 'src/data/analytics-live.json');
+import { redis, REDIS_KEYS } from '@/lib/redis';
 
 // Country code to name mapping
 const COUNTRY_NAMES: Record<string, string> = {
@@ -34,7 +31,7 @@ const COUNTRY_COORDS: Record<string, { lat: number; lng: number }> = {
     'NG': { lat: 9.0765, lng: 7.3986 }, 'KE': { lat: -1.2921, lng: 36.8219 },
     'SG': { lat: 1.3521, lng: 103.8198 }, 'MY': { lat: 3.1390, lng: 101.6869 },
     'TH': { lat: 13.7563, lng: 100.5018 }, 'ID': { lat: -6.2088, lng: 106.8456 },
-    'Unknown': { lat: 25.2048, lng: 55.2708 } // Default to Dubai
+    'Unknown': { lat: 25.2048, lng: 55.2708 }
 };
 
 interface Visitor {
@@ -49,7 +46,7 @@ interface Visitor {
     action: 'view' | 'cart' | 'checkout' | 'complete';
     cartItems: number;
     device: 'mobile' | 'desktop';
-    ip: string; // Store IP for location details
+    ip: string;
 }
 
 interface HistoricalVisit {
@@ -60,74 +57,7 @@ interface HistoricalVisit {
     ip: string;
 }
 
-interface AnalyticsData {
-    visitors: Record<string, Visitor>;
-    dailyStats: {
-        date: string;
-        orders: number;
-        revenue: number;
-        visitors: Set<string> | string[];
-    };
-    historicalVisits: HistoricalVisit[]; // For 24h/7d tracking
-}
-
-
-async function readData(): Promise<AnalyticsData> {
-    try {
-        const content = await fs.readFile(DATA_FILE, 'utf-8');
-        const parsed = JSON.parse(content);
-        // Convert visitors array to Set for dailyStats if needed
-        if (parsed.dailyStats?.visitors && Array.isArray(parsed.dailyStats.visitors)) {
-            parsed.dailyStats.visitors = new Set(parsed.dailyStats.visitors);
-        }
-        return {
-            visitors: parsed.visitors || {},
-            dailyStats: parsed.dailyStats || { date: '', orders: 0, revenue: 0, visitors: new Set() },
-            historicalVisits: parsed.historicalVisits || []
-        };
-    } catch {
-        return {
-            visitors: {},
-            dailyStats: { date: '', orders: 0, revenue: 0, visitors: new Set() },
-            historicalVisits: []
-        };
-    }
-}
-
-async function writeData(data: AnalyticsData): Promise<void> {
-    // Convert Set to Array for JSON serialization
-    const toWrite = {
-        visitors: data.visitors,
-        dailyStats: {
-            ...data.dailyStats,
-            visitors: Array.isArray(data.dailyStats.visitors)
-                ? data.dailyStats.visitors
-                : Array.from(data.dailyStats.visitors)
-        },
-        historicalVisits: data.historicalVisits || []
-    };
-    await fs.writeFile(DATA_FILE, JSON.stringify(toWrite, null, 2));
-}
-
-// Cleanup historical visits older than 7 days
-function cleanupHistoricalVisits(visits: HistoricalVisit[]): HistoricalVisit[] {
-    const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
-    return visits.filter(v => v.timestamp > sevenDaysAgo);
-}
-
-function cleanupOldVisitors(visitors: Record<string, Visitor>): Record<string, Visitor> {
-    const fiveMinutesAgo = Date.now() - 5 * 60 * 1000;
-    const cleaned: Record<string, Visitor> = {};
-    for (const [id, visitor] of Object.entries(visitors)) {
-        if (visitor.lastBeat > fiveMinutesAgo) {
-            cleaned[id] = visitor;
-        }
-    }
-    return cleaned;
-}
-
 function getTodayDate(): string {
-    // Use local timezone for midnight reset
     const now = new Date();
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 }
@@ -141,29 +71,36 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Missing visitorId' }, { status: 400 });
         }
 
+        // Check Redis availability
+        if (!redis) {
+            console.warn('[Analytics] Redis not configured, skipping...');
+            return NextResponse.json({ success: true, activeCount: 0, warning: 'Redis not configured' });
+        }
+
         // Get geolocation from Vercel headers first
         let country = req.headers.get('x-vercel-ip-country') || '';
         let city = req.headers.get('x-vercel-ip-city') || '';
         let lat = parseFloat(req.headers.get('x-vercel-ip-latitude') || '0');
         let lng = parseFloat(req.headers.get('x-vercel-ip-longitude') || '0');
 
-        // Fallback: Use free IP geolocation API for local development
+        // Fallback: Use HTTPS geolocation API
         if (!country || country === 'Unknown' || country === '') {
             try {
-                // Get client IP from headers
                 const clientIp = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
                     || req.headers.get('x-real-ip')
                     || '';
 
-                // Use ip-api.com (free, no API key, 45 requests/min limit)
-                const geoRes = await fetch(`http://ip-api.com/json/${clientIp}?fields=status,country,countryCode,city,lat,lon`);
+                // Use ipapi.co (free HTTPS, no API key, 1000/day)
+                const geoRes = await fetch(`https://ipapi.co/${clientIp}/json/`, {
+                    signal: AbortSignal.timeout(3000)
+                });
                 if (geoRes.ok) {
                     const geoData = await geoRes.json();
-                    if (geoData.status === 'success') {
-                        country = geoData.countryCode || 'AE';
+                    if (geoData.country_code) {
+                        country = geoData.country_code || 'AE';
                         city = geoData.city || 'Unknown';
-                        lat = geoData.lat || 25.2048;
-                        lng = geoData.lon || 55.2708;
+                        lat = geoData.latitude || 25.2048;
+                        lng = geoData.longitude || 55.2708;
                     }
                 }
             } catch (e) {
@@ -171,7 +108,7 @@ export async function POST(req: NextRequest) {
             }
         }
 
-        // Final fallback to Dubai if still no location
+        // Final fallback to Dubai
         if (!country || country === '') {
             country = 'AE';
             city = 'Dubai';
@@ -188,35 +125,11 @@ export async function POST(req: NextRequest) {
 
         const countryName = COUNTRY_NAMES[country] || country;
         const device = req.headers.get('user-agent')?.includes('Mobile') ? 'mobile' : 'desktop';
-
-        // Read existing data
-        const data = await readData();
-
-        // Check if daily stats need reset (new day)
-        const today = getTodayDate();
-        if (data.dailyStats.date !== today) {
-            data.dailyStats = { date: today, orders: 0, revenue: 0, visitors: new Set() };
-        }
-
-        // Track unique daily visitors
-        if (data.dailyStats.visitors instanceof Set) {
-            data.dailyStats.visitors.add(visitorId);
-        } else {
-            data.dailyStats.visitors = new Set([...(data.dailyStats.visitors || []), visitorId]);
-        }
-
-        // Handle order completion
-        if (action === 'complete' && orderId && orderTotal) {
-            data.dailyStats.orders += 1;
-            data.dailyStats.revenue += parseFloat(orderTotal) || 0;
-        }
-
-        // Get client IP
         const clientIp = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
             || req.headers.get('x-real-ip')
             || 'unknown';
 
-        // Update visitor record
+        // Build visitor object
         const visitor: Visitor = {
             id: visitorId,
             lastBeat: Date.now(),
@@ -232,36 +145,51 @@ export async function POST(req: NextRequest) {
             ip: clientIp
         };
 
-        // Add to historical visits (for 24h/7d tracking)
-        const isNewVisit = !data.visitors[visitorId] ||
-            (Date.now() - data.visitors[visitorId].lastBeat) > 30 * 60 * 1000; // New session if >30min gap
+        // Store visitor in Redis hash (expires in 10 minutes)
+        await redis.hset(REDIS_KEYS.VISITORS, { [visitorId]: JSON.stringify(visitor) });
+        await redis.expire(REDIS_KEYS.VISITORS, 600); // 10 min TTL
 
-        if (isNewVisit) {
-            data.historicalVisits.push({
-                visitorId,
-                timestamp: Date.now(),
-                country,
-                countryName,
-                ip: clientIp
-            });
-            // Cleanup old historical visits
-            data.historicalVisits = cleanupHistoricalVisits(data.historicalVisits);
+        // Daily stats
+        const today = getTodayDate();
+        const dailyKey = `${REDIS_KEYS.DAILY_STATS}:${today}`;
+
+        // Track unique visitors
+        await redis.sadd(`${dailyKey}:visitors`, visitorId);
+        await redis.expire(`${dailyKey}:visitors`, 86400 * 2); // 2 day TTL
+
+        // Handle order completion
+        if (action === 'complete' && orderId && orderTotal) {
+            await redis.hincrby(dailyKey, 'orders', 1);
+            await redis.hincrbyfloat(dailyKey, 'revenue', parseFloat(orderTotal) || 0);
+            await redis.expire(dailyKey, 86400 * 2);
         }
 
-        data.visitors[visitorId] = visitor;
+        // Historical visits (for 24h/7d tracking)
+        const historicalVisit: HistoricalVisit = {
+            visitorId,
+            timestamp: Date.now(),
+            country,
+            countryName,
+            ip: clientIp
+        };
+        await redis.lpush(REDIS_KEYS.HISTORICAL, JSON.stringify(historicalVisit));
+        await redis.ltrim(REDIS_KEYS.HISTORICAL, 0, 9999); // Keep last 10000 entries
+        await redis.expire(REDIS_KEYS.HISTORICAL, 86400 * 8); // 8 day TTL
 
-        // Cleanup old visitors
-        data.visitors = cleanupOldVisitors(data.visitors);
-
-        // Write back
-        await writeData(data);
+        // Get active count
+        const allVisitors = await redis.hgetall(REDIS_KEYS.VISITORS);
+        const fiveMinutesAgo = Date.now() - 5 * 60 * 1000;
+        let activeCount = 0;
+        for (const v of Object.values(allVisitors || {})) {
+            try {
+                const parsed = typeof v === 'string' ? JSON.parse(v) : v;
+                if (parsed.lastBeat > fiveMinutesAgo) activeCount++;
+            } catch { }
+        }
 
         console.log(`[Analytics] Beat: ${visitorId} | ${action} | ${visitorPath} | ${countryName}`);
 
-        return NextResponse.json({
-            success: true,
-            activeCount: Object.keys(data.visitors).length
-        });
+        return NextResponse.json({ success: true, activeCount });
 
     } catch (error) {
         console.error('[Analytics] Beat error:', error);
