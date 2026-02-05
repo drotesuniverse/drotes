@@ -202,7 +202,7 @@ export default function ProductAddonPopup({ onUpdate }: ProductAddonPopupProps) 
                     <span className="text-xs font-bold uppercase tracking-widest flex items-center gap-2">
                         {addonPrice > 0 ? <Check size={14} /> : <CreditCard size={14} />}
                         {addonPrice > 0 ? "Patch Personalized" : "Personalize Patch"}
-                        {addonPrice === 0 && <span className="text-[10px] font-medium normal-case tracking-normal text-neutral-400">(optional)
+                        {addonPrice === 0 && <span className="text-[10px] font-medium normal-case tracking-normal text-neutral-400">(optional)</span>}
                     </span>
                     <span className="text-xs font-bold">
                         {addonPrice > 0 ? `+${formatAddonPrice(addonPrice)}` : "Start"}
