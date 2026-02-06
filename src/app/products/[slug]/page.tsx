@@ -377,34 +377,34 @@ export default function SingleProductPage() {
             "https://bck.drotes.com/wp-content/uploads/2025/11/4V6A1898-scaled.jpg",
             "https://bck.drotes.com/wp-content/uploads/2025/11/4V6A1895-scaled.jpg",
             "https://bck.drotes.com/wp-content/uploads/2025/11/4V6A1881-scaled.jpg",
-            "https://drotes.com/wp-content/uploads/2025/11/4V6A1887-scaled.jpg"
+            "https://bck.drotes.com/wp-content/uploads/2025/11/4V6A1887-scaled.jpg"
         ],
         "crimson dust red": [ // "red" in user request, typically "crimson dust red" in attr
-            "https://drotes.com/wp-content/uploads/2025/10/4V6A4383-scaled.webp",
-            "https://drotes.com/wp-content/uploads/2025/10/4V6A4328-scaled.webp",
-            "https://drotes.com/wp-content/uploads/2025/10/4V6A4320-scaled.webp",
-            "https://drotes.com/wp-content/uploads/2025/10/4V6A4375-scaled.webp"
+            "https://bck.drotes.com/wp-content/uploads/2025/10/4V6A4383-scaled.webp",
+            "https://bck.drotes.com/wp-content/uploads/2025/10/4V6A4328-scaled.webp",
+            "https://bck.drotes.com/wp-content/uploads/2025/10/4V6A4320-scaled.webp",
+            "https://bck.drotes.com/wp-content/uploads/2025/10/4V6A4375-scaled.webp"
         ],
         "obsidian black": [ // "black"
-            "https://drotes.com/wp-content/uploads/2025/11/4V6A1853-scaled.jpg",
-            "https://drotes.com/wp-content/uploads/2025/11/4V6A1855-scaled.jpg",
-            "https://drotes.com/wp-content/uploads/2025/11/4V6A1871-scaled.jpg",
-            "https://drotes.com/wp-content/uploads/2025/11/4V6A1862-scaled.jpg",
-            "https://drotes.com/wp-content/uploads/2026/01/4V6A1874-scaled.jpg"
+            "https://bck.drotes.com/wp-content/uploads/2025/11/4V6A1853-scaled.jpg",
+            "https://bck.drotes.com/wp-content/uploads/2025/11/4V6A1855-scaled.jpg",
+            "https://bck.drotes.com/wp-content/uploads/2025/11/4V6A1871-scaled.jpg",
+            "https://bck.drotes.com/wp-content/uploads/2025/11/4V6A1862-scaled.jpg",
+            "https://bck.drotes.com/wp-content/uploads/2026/01/4V6A1874-scaled.jpg"
         ],
         // Fallback for simple "red" or "black" if attributes vary
         "red": [
-            "https://drotes.com/wp-content/uploads/2025/10/4V6A4383-scaled.webp",
-            "https://drotes.com/wp-content/uploads/2025/10/4V6A4328-scaled.webp",
-            "https://drotes.com/wp-content/uploads/2025/10/4V6A4320-scaled.webp",
-            "https://drotes.com/wp-content/uploads/2025/10/4V6A4375-scaled.webp"
+            "https://bck.drotes.com/wp-content/uploads/2025/10/4V6A4383-scaled.webp",
+            "https://bck.drotes.com/wp-content/uploads/2025/10/4V6A4328-scaled.webp",
+            "https://bck.drotes.com/wp-content/uploads/2025/10/4V6A4320-scaled.webp",
+            "https://bck.drotes.com/wp-content/uploads/2025/10/4V6A4375-scaled.webp"
         ],
         "black": [
-            "https://drotes.com/wp-content/uploads/2025/11/4V6A1853-scaled.jpg",
-            "https://drotes.com/wp-content/uploads/2025/11/4V6A1855-scaled.jpg",
-            "https://drotes.com/wp-content/uploads/2025/11/4V6A1871-scaled.jpg",
-            "https://drotes.com/wp-content/uploads/2025/11/4V6A1862-scaled.jpg",
-            "https://drotes.com/wp-content/uploads/2026/01/4V6A1874-scaled.jpg"
+            "https://bck.drotes.com/wp-content/uploads/2025/11/4V6A1853-scaled.jpg",
+            "https://bck.drotes.com/wp-content/uploads/2025/11/4V6A1855-scaled.jpg",
+            "https://bck.drotes.com/wp-content/uploads/2025/11/4V6A1871-scaled.jpg",
+            "https://bck.drotes.com/wp-content/uploads/2025/11/4V6A1862-scaled.jpg",
+            "https://bck.drotes.com/wp-content/uploads/2026/01/4V6A1874-scaled.jpg"
         ]
     };
 
