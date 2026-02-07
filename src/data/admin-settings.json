@@ -21,13 +21,7 @@
       "id": "3",
       "name": "About Brand",
       "href": "https://about.drotes.com"
-    }
-{
-      "id": "4",
-      "name": "Drotes Imprint",
-      "href": "/drotes-imprint"
-    }
-    
+    }    
   ],
   "popup": {
     "enabled": false,
