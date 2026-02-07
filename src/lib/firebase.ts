@@ -1,6 +1,7 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getAnalytics, isSupported } from "firebase/analytics";
+import { getFirestore } from "firebase/firestore";
 const firebaseConfig = {
     apiKey: "AIzaSyDSv2nm_EqLJ_KJOrF4cFyrwGq3pefcpgM",
     authDomain: "otp-drotes.firebaseapp.com",
@@ -21,4 +22,5 @@ if (typeof window !== "undefined") {
         }
     });
 }
-export { app, auth, analytics };
+const db = getFirestore(app);
+export { app, auth, analytics, db };
