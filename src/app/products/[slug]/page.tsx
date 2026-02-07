@@ -377,34 +377,34 @@ export default function SingleProductPage() {
             "https://bck.drotes.com/wp-content/uploads/2025/11/4V6A1898-scaled.jpg",
             "https://bck.drotes.com/wp-content/uploads/2025/11/4V6A1895-scaled.jpg",
             "https://bck.drotes.com/wp-content/uploads/2025/11/4V6A1881-scaled.jpg",
-            "https://drotes.com/wp-content/uploads/2025/11/4V6A1887-scaled.jpg"
+            "https://bck.drotes.com/wp-content/uploads/2025/11/4V6A1887-scaled.jpg"
         ],
         "crimson dust red": [ // "red" in user request, typically "crimson dust red" in attr
-            "https://drotes.com/wp-content/uploads/2025/10/4V6A4383-scaled.webp",
-            "https://drotes.com/wp-content/uploads/2025/10/4V6A4328-scaled.webp",
-            "https://drotes.com/wp-content/uploads/2025/10/4V6A4320-scaled.webp",
-            "https://drotes.com/wp-content/uploads/2025/10/4V6A4375-scaled.webp"
+            "https://bck.drotes.com/wp-content/uploads/2025/10/4V6A4383-scaled.webp",
+            "https://bck.drotes.com/wp-content/uploads/2025/10/4V6A4328-scaled.webp",
+            "https://bck.drotes.com/wp-content/uploads/2025/10/4V6A4320-scaled.webp",
+            "https://bck.drotes.com/wp-content/uploads/2025/10/4V6A4375-scaled.webp"
         ],
         "obsidian black": [ // "black"
-            "https://drotes.com/wp-content/uploads/2025/11/4V6A1853-scaled.jpg",
-            "https://drotes.com/wp-content/uploads/2025/11/4V6A1855-scaled.jpg",
-            "https://drotes.com/wp-content/uploads/2025/11/4V6A1871-scaled.jpg",
-            "https://drotes.com/wp-content/uploads/2025/11/4V6A1862-scaled.jpg",
-            "https://drotes.com/wp-content/uploads/2026/01/4V6A1874-scaled.jpg"
+            "https://bck.drotes.com/wp-content/uploads/2025/11/4V6A1853-scaled.jpg",
+            "https://bck.drotes.com/wp-content/uploads/2025/11/4V6A1855-scaled.jpg",
+            "https://bck.drotes.com/wp-content/uploads/2025/11/4V6A1871-scaled.jpg",
+            "https://bck.drotes.com/wp-content/uploads/2025/11/4V6A1862-scaled.jpg",
+            "https://bck.drotes.com/wp-content/uploads/2026/01/4V6A1874-scaled.jpg"
         ],
         // Fallback for simple "red" or "black" if attributes vary
         "red": [
-            "https://drotes.com/wp-content/uploads/2025/10/4V6A4383-scaled.webp",
-            "https://drotes.com/wp-content/uploads/2025/10/4V6A4328-scaled.webp",
-            "https://drotes.com/wp-content/uploads/2025/10/4V6A4320-scaled.webp",
-            "https://drotes.com/wp-content/uploads/2025/10/4V6A4375-scaled.webp"
+            "https://bck.drotes.com/wp-content/uploads/2025/10/4V6A4383-scaled.webp",
+            "https://bck.drotes.com/wp-content/uploads/2025/10/4V6A4328-scaled.webp",
+            "https://bck.drotes.com/wp-content/uploads/2025/10/4V6A4320-scaled.webp",
+            "https://bck.drotes.com/wp-content/uploads/2025/10/4V6A4375-scaled.webp"
         ],
         "black": [
-            "https://drotes.com/wp-content/uploads/2025/11/4V6A1853-scaled.jpg",
-            "https://drotes.com/wp-content/uploads/2025/11/4V6A1855-scaled.jpg",
-            "https://drotes.com/wp-content/uploads/2025/11/4V6A1871-scaled.jpg",
-            "https://drotes.com/wp-content/uploads/2025/11/4V6A1862-scaled.jpg",
-            "https://drotes.com/wp-content/uploads/2026/01/4V6A1874-scaled.jpg"
+            "https://bck.drotes.com/wp-content/uploads/2025/11/4V6A1853-scaled.jpg",
+            "https://bck.drotes.com/wp-content/uploads/2025/11/4V6A1855-scaled.jpg",
+            "https://bck.drotes.com/wp-content/uploads/2025/11/4V6A1871-scaled.jpg",
+            "https://bck.drotes.com/wp-content/uploads/2025/11/4V6A1862-scaled.jpg",
+            "https://bck.drotes.com/wp-content/uploads/2026/01/4V6A1874-scaled.jpg"
         ]
     };
 
@@ -596,6 +596,24 @@ export default function SingleProductPage() {
                                 )}
                             </button>
                         </div>
+
+                        {/* Drotes Imprint Charity Message */}
+                        <Link
+                            href="/drotes-imprint"
+                            className="group flex items-center gap-4 px-5 py-4 bg-neutral-50 hover:bg-neutral-100 border border-neutral-100 rounded-lg mb-8 transition-all hover:shadow-md"
+                        >
+                            <div className="relative flex items-center justify-center w-2.5 h-2.5 flex-shrink-0">
+                                <span className="absolute w-full h-full bg-emerald-400 rounded-full animate-ping opacity-60" />
+                                <span className="relative w-2 h-2 bg-emerald-500 rounded-full" />
+                            </div>
+                            <div className="flex-1">
+                                <p className="text-xs text-neutral-500 leading-relaxed">
+                                    <span className="font-semibold text-neutral-700">1%</span> of drotes annual sales supports the{' '}
+                                    <span className="font-bold text-neutral-900 underline underline-offset-2 decoration-emerald-500/40 group-hover:decoration-emerald-500 transition-all">Drotes Imprint</span>
+                                </p>
+                            </div>
+                            <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-600 group-hover:translate-x-1 transition-transform">Learn →</span>
+                        </Link>
 
                         {/* Shipping Guarantee */}
                         <div className="mb-10">

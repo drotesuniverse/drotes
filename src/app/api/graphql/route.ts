@@ -64,6 +64,17 @@ export async function POST(req: NextRequest) {
         });
         clearTimeout(timeoutId);
 
+        // Debug: Log non-200 responses
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error(`[GraphQL Proxy] Upstream Error: ${response.status} ${response.statusText}`);
+            console.error(`[GraphQL Proxy] Body: ${errorText.substring(0, 500)}`); // Log first 500 chars
+            return NextResponse.json({
+                error: `Upstream error ${response.status}`,
+                details: errorText.substring(0, 200)
+            }, { status: response.status });
+        }
+
         const data = await response.json();
         const nextResponse = NextResponse.json(data);
 
