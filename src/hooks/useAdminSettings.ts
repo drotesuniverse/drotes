@@ -74,7 +74,8 @@ const DEFAULT_SETTINGS: AdminSettings = {
     menuItems: [
         { id: "1", name: "Home", href: "/" },
         { id: "2", name: "Drop: anec:dote", href: "/shop" },
-        { id: "3", name: "About Brand", href: "#about" }
+        { id: "3", name: "About Brand", href: "/about" }
+        { id: "4", name: "Drotes Imprint", href: "/drotes-imprint" }
     ],
     popup: {
         enabled: false,
