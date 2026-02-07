@@ -156,6 +156,7 @@ export function useAdminSettings() {
     // Load from Server + LocalStorage
     useEffect(() => {
         const loadSettings = async () => {
+            console.log("[useAdminSettings] Starting load...");
             let merged = { ...DEFAULT_SETTINGS };
             let hasLocalData = false;
 
@@ -166,7 +167,10 @@ export function useAdminSettings() {
                     try {
                         merged = { ...merged, ...JSON.parse(saved) };
                         hasLocalData = true;
-                    } catch (e) { }
+                        console.log("[useAdminSettings] Loaded from localStorage", merged.menuItems?.length, "menu items");
+                    } catch (e) {
+                        console.error("[useAdminSettings] localStorage parse error", e);
+                    }
                 }
             }
 
@@ -174,12 +178,16 @@ export function useAdminSettings() {
             // set loaded to true IMMEDIATELY to unblock UI.
             setSettings(merged);
             setIsLoaded(true);
+            console.log("[useAdminSettings] Initial state set, isLoaded=true");
 
             // 2. Try Server (Truth) - Background Update
             try {
+                console.log("[useAdminSettings] Fetching from /api/settings...");
                 const res = await fetch('/api/settings', { cache: 'no-store' }); // Disable caching
+                console.log("[useAdminSettings] API response status:", res.status);
                 if (res.ok) {
                     const serverData = await res.json();
+                    console.log("[useAdminSettings] Server data keys:", Object.keys(serverData).length);
 
                     // Only update if server has meaningful data
                     if (Object.keys(serverData).length > 0) {
@@ -200,6 +208,8 @@ export function useAdminSettings() {
                                 ? migratedData.menuItems
                                 : prev.menuItems;
 
+                            console.log("[useAdminSettings] Merging with", validMenuItems?.length, "menu items");
+
                             return {
                                 ...prev,
                                 ...migratedData,
@@ -209,7 +219,7 @@ export function useAdminSettings() {
                     }
                 }
             } catch (e) {
-                console.error("Failed to fetch server settings", e);
+                console.error("[useAdminSettings] Failed to fetch server settings", e);
             }
 
             // 3. Fetch Real WooCommerce Orders - Background Update
