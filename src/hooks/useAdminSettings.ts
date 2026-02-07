@@ -170,14 +170,13 @@ export function useAdminSettings() {
                 }
             }
 
-            // OPTIMIZATION: If we have local data, or even if we don't (using defaults), 
-            // set loaded to true IMMEDIATELY to unblock UI.
+            // OPTIMIZATION: If we have local data, set loaded to true IMMEDIATELY to unblock UI.
             setSettings(merged);
             setIsLoaded(true);
 
             // 2. Try Server (Truth) - Background Update
             try {
-                const res = await fetch('/api/settings');
+                const res = await fetch('/api/settings', { cache: 'no-store' }); // Ensure fresh fetch
                 if (res.ok) {
                     const serverData = await res.json();
                     if (Object.keys(serverData).length > 0) {
@@ -185,14 +184,23 @@ export function useAdminSettings() {
                         const migratedCharts = (serverData.sizeCharts || []).map((chart: any) => ({
                             ...chart,
                             headers: chart.headers || ["Size", "Measurement"],
-                            rows: chart.rows || (chart.content ? [] : [["", ""]]), // Fallback for very old data
-                            unit: chart.unit || "cm" // Default to CM
+                            rows: chart.rows || (chart.content ? [] : [["", ""]]),
+                            unit: chart.unit || "cm"
                         }));
 
                         const migratedData = { ...serverData, sizeCharts: migratedCharts };
-                        merged = { ...merged, ...migratedData };
-                        // Update state with server data when it arrives without resetting isLoaded
-                        setSettings(prev => ({ ...prev, ...migratedData }));
+
+                        // CRITICAL: Server data overwrites local data for critical fields (menu, logo)
+                        // allowing local data to only fill gaps if any (merged above)
+
+                        setSettings(prev => {
+                            const newState = { ...prev, ...migratedData };
+                            // Update local storage with the FRESH server data to keep them in sync
+                            if (typeof window !== "undefined") {
+                                localStorage.setItem("drotes_admin_settings", JSON.stringify(newState));
+                            }
+                            return newState;
+                        });
                     }
                 }
             } catch (e) {
