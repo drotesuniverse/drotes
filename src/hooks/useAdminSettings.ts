@@ -170,36 +170,41 @@ export function useAdminSettings() {
                 }
             }
 
-            // OPTIMIZATION: If we have local data, set loaded to true IMMEDIATELY to unblock UI.
+            // OPTIMIZATION: If we have local data, or even if we don't (using defaults), 
+            // set loaded to true IMMEDIATELY to unblock UI.
             setSettings(merged);
             setIsLoaded(true);
 
             // 2. Try Server (Truth) - Background Update
             try {
-                const res = await fetch('/api/settings', { cache: 'no-store' }); // Ensure fresh fetch
+                const res = await fetch('/api/settings', { cache: 'no-store' }); // Disable caching
                 if (res.ok) {
                     const serverData = await res.json();
+
+                    // Only update if server has meaningful data
                     if (Object.keys(serverData).length > 0) {
                         // MIGRATION: Ensure all size charts have headers and rows (Legacy fallback)
                         const migratedCharts = (serverData.sizeCharts || []).map((chart: any) => ({
                             ...chart,
                             headers: chart.headers || ["Size", "Measurement"],
-                            rows: chart.rows || (chart.content ? [] : [["", ""]]),
-                            unit: chart.unit || "cm"
+                            rows: chart.rows || (chart.content ? [] : [["", ""]]), // Fallback for very old data
+                            unit: chart.unit || "cm" // Default to CM
                         }));
 
                         const migratedData = { ...serverData, sizeCharts: migratedCharts };
 
-                        // CRITICAL: Server data overwrites local data for critical fields (menu, logo)
-                        // allowing local data to only fill gaps if any (merged above)
-
+                        // Intelligent Merge: Don't overwrite if local defines it but server is empty
                         setSettings(prev => {
-                            const newState = { ...prev, ...migratedData };
-                            // Update local storage with the FRESH server data to keep them in sync
-                            if (typeof window !== "undefined") {
-                                localStorage.setItem("drotes_admin_settings", JSON.stringify(newState));
-                            }
-                            return newState;
+                            // If we have local menu items but server sent empty/default, keep local
+                            const validMenuItems = (migratedData.menuItems?.length > 0)
+                                ? migratedData.menuItems
+                                : prev.menuItems;
+
+                            return {
+                                ...prev,
+                                ...migratedData,
+                                menuItems: validMenuItems
+                            };
                         });
                     }
                 }
