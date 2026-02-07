@@ -1,10 +1,6 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getAnalytics, isSupported } from "firebase/analytics";
-<<<<<<< HEAD
-
-=======
->>>>>>> 978c6cfd7a1c53190512a6031a87d389aab56f0b
 const firebaseConfig = {
     apiKey: "AIzaSyDSv2nm_EqLJ_KJOrF4cFyrwGq3pefcpgM",
     authDomain: "otp-drotes.firebaseapp.com",
@@ -17,10 +13,6 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(app);
-<<<<<<< HEAD
-
-=======
->>>>>>> 978c6cfd7a1c53190512a6031a87d389aab56f0b
 let analytics;
 if (typeof window !== "undefined") {
     isSupported().then((supported) => {
@@ -29,8 +21,4 @@ if (typeof window !== "undefined") {
         }
     });
 }
-<<<<<<< HEAD
-
-=======
->>>>>>> 978c6cfd7a1c53190512a6031a87d389aab56f0b
 export { app, auth, analytics };
