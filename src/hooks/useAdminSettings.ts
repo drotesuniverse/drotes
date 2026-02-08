@@ -1,13 +1,11 @@
 "use client";
 import { useState, useEffect } from "react";
-
 // Types
 export interface MenuItem {
     id: string;
     name: string;
     href: string;
 }
-
 export interface AdminSettings {
     logo: {
         url: string;
@@ -50,7 +48,6 @@ export interface AdminSettings {
         youtube?: string;
     };
 }
-
 export interface Order {
     id: string;
     customer: string;
@@ -61,7 +58,6 @@ export interface Order {
     items: Array<{ name: string; cost: number; price: number; quantity: number; image?: string; customFile?: string }>;
     shippingCost: number;
 }
-
 // Defaults
 const DEFAULT_SETTINGS: AdminSettings = {
     logo: {
@@ -74,7 +70,7 @@ const DEFAULT_SETTINGS: AdminSettings = {
     menuItems: [
         { id: "1", name: "Home", href: "/" },
         { id: "2", name: "Drop: anec:dote", href: "/shop" },
-        { id: "3", name: "About Brand", href: "/about" }
+        { id: "3", name: "About Brand", href: "#about" }
     ],
     popup: {
         enabled: false,
@@ -148,18 +144,15 @@ const DEFAULT_SETTINGS: AdminSettings = {
         tiktok: "drotes"
     }
 };
-
 export function useAdminSettings() {
     const [settings, setSettings] = useState<AdminSettings>(DEFAULT_SETTINGS);
     const [isLoaded, setIsLoaded] = useState(false);
-
     // Load from Server + LocalStorage
     useEffect(() => {
         const loadSettings = async () => {
             console.log("[useAdminSettings] Starting load...");
             let merged = { ...DEFAULT_SETTINGS };
             let hasLocalData = false;
-
             // 1. Try LocalStorage (Fastest) - Optimistic update
             if (typeof window !== "undefined") {
                 const saved = localStorage.getItem("drotes_admin_settings");
@@ -173,13 +166,11 @@ export function useAdminSettings() {
                     }
                 }
             }
-
             // OPTIMIZATION: If we have local data, or even if we don't (using defaults), 
             // set loaded to true IMMEDIATELY to unblock UI.
             setSettings(merged);
             setIsLoaded(true);
             console.log("[useAdminSettings] Initial state set, isLoaded=true");
-
             // 2. Try Server (Truth) - Background Update
             try {
                 console.log("[useAdminSettings] Fetching from /api/settings...");
@@ -188,7 +179,6 @@ export function useAdminSettings() {
                 if (res.ok) {
                     const serverData = await res.json();
                     console.log("[useAdminSettings] Server data keys:", Object.keys(serverData).length);
-
                     // Only update if server has meaningful data
                     if (Object.keys(serverData).length > 0) {
                         // MIGRATION: Ensure all size charts have headers and rows (Legacy fallback)
@@ -198,22 +188,31 @@ export function useAdminSettings() {
                             rows: chart.rows || (chart.content ? [] : [["", ""]]), // Fallback for very old data
                             unit: chart.unit || "cm" // Default to CM
                         }));
-
                         const migratedData = { ...serverData, sizeCharts: migratedCharts };
-
                         // Intelligent Merge: Don't overwrite if local defines it but server is empty
                         setSettings(prev => {
                             // If we have local menu items but server sent empty/default, keep local
                             const validMenuItems = (migratedData.menuItems?.length > 0)
                                 ? migratedData.menuItems
                                 : prev.menuItems;
-
                             console.log("[useAdminSettings] Merging with", validMenuItems?.length, "menu items");
-
+                            // CRITICAL FIX: Do not overwrite entire state with server data blindly.
+                            // Only update specific fields or use deep merge if necessary.
+                            // For now, we trust server data for most things EXCEPT if it's the "default" state and we have local changes.
+                            // Since we can't easily track "dirty" state, we will trust LOCAL for everything 
+                            // unless the server data is clearly "newer" (which we can't know without timestamps).
+                            // Strategy: usage of server data should be additive or fill gaps. 
+                            // BUT for a single-user admin, local is usually truth.
+                            // However, we need server data for things like "orders" which come from WC.
                             return {
-                                ...prev,
-                                ...migratedData,
-                                menuItems: validMenuItems
+                                ...prev, // Keep local state as base
+                                ...migratedData, // Apply server updates
+                                // RESTORE Local overrides if server data looks like "default/stale"
+                                menuItems: validMenuItems,
+                                // Preserve local shipping guarantee if server says enabled=true (default) but local says false
+                                shippingGuarantee: (prev.shippingGuarantee && !prev.shippingGuarantee.enabled && migratedData.shippingGuarantee?.enabled)
+                                    ? prev.shippingGuarantee
+                                    : (migratedData.shippingGuarantee || prev.shippingGuarantee)
                             };
                         });
                     }
@@ -221,7 +220,6 @@ export function useAdminSettings() {
             } catch (e) {
                 console.error("[useAdminSettings] Failed to fetch server settings", e);
             }
-
             // 3. Fetch Real WooCommerce Orders - Background Update
             try {
                 const orderRes = await fetch('/api/orders');
@@ -243,7 +241,6 @@ export function useAdminSettings() {
                         })),
                         shippingCost: parseFloat(o.shipping_total)
                     }));
-
                     // Replace mock orders with real ones in the background
                     setSettings(prev => ({ ...prev, orders: mappedOrders }));
                 }
@@ -251,21 +248,17 @@ export function useAdminSettings() {
                 console.error("Failed to fetch WC orders", e);
             }
         };
-
         loadSettings();
     }, []);
-
     // Save method with Server Sync
     const updateSettings = (newSettings: Partial<AdminSettings>) => {
         const updated = { ...settings, ...newSettings };
         setSettings(updated);
-
         // 1. Local Persistence
         if (typeof window !== "undefined") {
             localStorage.setItem("drotes_admin_settings", JSON.stringify(updated));
             window.dispatchEvent(new Event("admin-settings-updated"));
         }
-
         // 2. Server Persistence
         fetch('/api/settings', {
             method: 'POST',
@@ -273,50 +266,39 @@ export function useAdminSettings() {
             body: JSON.stringify(updated)
         }).catch(err => console.error("Failed to save to server", err));
     };
-
     // Calculate Profit for an Order
     const calculateOrderProfit = (order: Order) => {
         let orderTotalRevenue = 0;
         let orderTotalCost = 0;
-
         const processedItems = order.items.map(item => {
             // COST LOGIC: Use setting override -> Fallback to item cost -> Fallback to 0
             const unitCost = settings.productCosts[item.name] !== undefined
                 ? Number(settings.productCosts[item.name])
                 : (item.cost || 0);
-
             // PRICE LOGIC: Use setting override -> Fallback to item price
             // Note: Changing price retrospectively changes the *calculated* revenue for analytics,
             // even if the customer paid differently. This is often desired for "correction" purposes.
             const unitPrice = settings.productPrices?.[item.name] !== undefined
                 ? Number(settings.productPrices[item.name])
                 : item.price;
-
             const itemRevenue = unitPrice * item.quantity;
             const itemCost = unitCost * item.quantity;
-
             orderTotalRevenue += itemRevenue;
             orderTotalCost += itemCost;
-
             return { ...item, cost: unitCost, price: unitPrice };
         });
-
         // Use the recalculated revenue if we want "corrected" stats,
         // OR stick to `order.total` if we only want to change Costs.
         // Given user said "price shown is wrong", let's affect revenue too if overridden.
         // However, `order.total` usually includes shipping.
         // Let's recalculate total based on new items + existing shipping.
-
         // If NO price overrides exist for this order's items, usually matches order.total
         // But to be safe and allow "Price Correction", we rely on the sum.
         const effectiveRevenue = orderTotalRevenue + (order.shippingCost || 0);
-
         const profit = effectiveRevenue - (orderTotalCost + (order.shippingCost || 0));
         const margin = effectiveRevenue > 0 ? (profit / effectiveRevenue) * 100 : 0;
-
         return { profit, margin, totalCost: orderTotalCost + (order.shippingCost || 0), adjustedTotal: effectiveRevenue };
     };
-
     return {
         settings,
         isLoaded,
