@@ -27,7 +27,7 @@ const COLOR_MAP: Record<string, string> = {
     "blue": "#0000ff",
     "navy": "#000080",
     "forest": "#228b22",
-};
+}; 
 
 function getColorHex(name: string) {
     if (!name) return "#e5e5e5";
