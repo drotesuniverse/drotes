@@ -209,9 +209,43 @@ export function useAdminSettings() {
     }).catch(err => console.error("Save failed", err));
   };
 
+   const calculateOrderProfit = (order: Order) => {
+        let orderTotalRevenue = 0;
+        let orderTotalCost = 0;
+        const processedItems = order.items.map(item => {
+            // COST LOGIC: Use setting override -> Fallback to item cost -> Fallback to 0
+            const unitCost = settings.productCosts[item.name] !== undefined
+                ? Number(settings.productCosts[item.name])
+                : (item.cost || 0);
+            // PRICE LOGIC: Use setting override -> Fallback to item price
+            // Note: Changing price retrospectively changes the *calculated* revenue for analytics,
+            // even if the customer paid differently. This is often desired for "correction" purposes.
+            const unitPrice = settings.productPrices?.[item.name] !== undefined
+                ? Number(settings.productPrices[item.name])
+                : item.price;
+            const itemRevenue = unitPrice * item.quantity;
+            const itemCost = unitCost * item.quantity;
+            orderTotalRevenue += itemRevenue;
+            orderTotalCost += itemCost;
+            return { ...item, cost: unitCost, price: unitPrice };
+        });
+        // Use the recalculated revenue if we want "corrected" stats,
+        // OR stick to `order.total` if we only want to change Costs.
+        // Given user said "price shown is wrong", let's affect revenue too if overridden.
+        // However, `order.total` usually includes shipping.
+        // Let's recalculate total based on new items + existing shipping.
+        // If NO price overrides exist for this order's items, usually matches order.total
+        // But to be safe and allow "Price Correction", we rely on the sum.
+        const effectiveRevenue = orderTotalRevenue + (order.shippingCost || 0);
+        const profit = effectiveRevenue - (orderTotalCost + (order.shippingCost || 0));
+        const margin = effectiveRevenue > 0 ? (profit / effectiveRevenue) * 100 : 0;
+        return { profit, margin, totalCost: orderTotalCost + (order.shippingCost || 0), adjustedTotal: effectiveRevenue };
+    };
+
   return {
     settings,
     isLoaded,
-    updateSettings
+    updateSettings,
+    calculateOrderProfit
   };
 }
