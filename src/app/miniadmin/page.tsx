@@ -2111,7 +2111,7 @@ return (
       <ImageEditor
         imageSrc={editorState.imageSrc}
         onSave={handleEditorSave}
-        onClose={() => setEditorState({ open: false, file: null, imageSrc: null, field: null })}
+        onCancel={() => setEditorState({ open: false, file: null, imageSrc: null, field: null })}
       />
     )}
   </div>
