@@ -11,6 +11,7 @@ interface ImageEditorProps {
     aspectRatio?: number; // e.g. 1 (square), 16/9 (hero)
     onCancel: () => void;
     onSave: (croppedImage: Blob) => void;
+    onClose: () => void;
 }
 
 export default function ImageEditor({ imageSrc, aspectRatio = 1, onCancel, onSave }: ImageEditorProps) {
