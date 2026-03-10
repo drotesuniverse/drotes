@@ -281,7 +281,7 @@ export default function SingleProductPage() {
                 {JSON.stringify(error)}
             </div>
         </main>
-    );
+    ); 
 
     if (!product) return (
         <main className="min-h-screen bg-white flex items-center justify-center">
