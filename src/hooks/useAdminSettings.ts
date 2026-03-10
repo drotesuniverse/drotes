@@ -90,7 +90,7 @@ const DEFAULT_SETTINGS: AdminSettings = {
     width: 80,
     height: 24
   },
-  heroImage: "/hero-main.png",
+  heroImage: "/",
   heroOverlayOpacity: 0.5,
   menuItems: [
     { id: "1", name: "Home", href: "/" },
