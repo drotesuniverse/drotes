@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { useRef } from "react";
 import { ArrowRight, ShoppingBag } from "lucide-react";
 
+
 export default function CollectionPreview() {
   const containerRef = useRef<HTMLDivElement>(null);
   // Fetch latest 10 products
@@ -152,7 +153,9 @@ function parsePrice(priceIdx: string | number): number {
     return parseFloat(clean);
 }
 
-const priceRaw = parsePrice(cleanPriceString(item.price))
+const priceRaw = cleanPriceString(item.price) || parsePrice(cleanPriceString(item.price))
+
+// const priceInt = parseFloat(priceRaw) || 0;
 
 console.log(priceRaw,"PP")
 const priceDisplay = priceRaw
@@ -210,7 +213,7 @@ const priceDisplay = priceRaw
             Core Tech / Season 01
           </p>
         </div>
-        {parseFloat(priceRaw) > 0 && (
+        {priceRaw && (
           <div className="bg-white/5 px-4 py-2 rounded-xl backdrop-blur-md border border-white/5 group-hover:bg-white group-hover:text-black transition-all">
             <span className="text-white group-hover:text-black font-mono text-[10px] font-bold uppercase tracking-widest">
               {priceDisplay}
