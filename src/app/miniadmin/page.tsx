@@ -2016,85 +2016,104 @@ export default function MiniAdminPage() {
         } catch (e) { alert("Upload failed"); }
     };
 
-    return (
-        <main className="flex h-[100dvh] w-full bg-[#f8f8f8] text-neutral-900 font-sans selection:bg-black selection:text-white overflow-hidden">
-            {/* 1. FIXED SIDEBAR */}
-            <aside className="w-20 lg:w-72 bg-white/80 backdrop-blur-xl border-r border-neutral-200/50 flex flex-col z-50 h-full relative shrink-0">
-                <div className="h-24 flex items-center px-8">
-                    <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center text-white font-black text-xs tracking-tighter">AN</div>
-                    <span className="ml-3 font-bold tracking-tight hidden lg:block">ANEC:DOTE</span>
-                </div>
+return (
+  <div className="min-h-screen w-full bg-[#f8f8f8]">
+    <div className="flex">
+      
+      {/* ================= SIDEBAR ================= */}
+      <aside className="w-20 lg:w-72 bg-white border-r border-neutral-200 flex flex-col fixed h-screen">
+        
+        {/* Logo */}
+        <div className="h-24 flex items-center px-6">
+          <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center text-white font-black text-xs">
+            AN
+          </div>
+          <span className="ml-3 font-bold hidden lg:block">
+            ANEC:DOTE
+          </span>
+        </div>
 
-                <nav className="flex-1 px-4 space-y-2 py-8 overflow-y-auto">
-                    {[
-                        { id: "dashboard", icon: LayoutDashboard, label: "Overview" },
-                        { id: "live", icon: Globe, label: "Live View" }, // NEW LIVE VIEW
-                        { id: "addons", icon: Puzzle, label: "Addons" }, // New Addons Tab
-                        { id: "content", icon: Palette, label: "Experience" },
-                        { id: "commerce", icon: ShoppingBag, label: "Commerce" },
-                        { id: "profit", icon: TrendingUp, label: "Profit" },
-                        { id: "products", icon: Package, label: "Inventory" },
-                        { id: "size-guide", icon: Ruler, label: "Size Guide" }, // New Size Guide Tab
-                        { id: "settings", icon: Settings, label: "System" }
-                    ].map(tab => (
-                        <button
-                            key={tab.id}
-                            onClick={() => setActiveTab(tab.id)}
-                            className={clsx(
-                                "flex items-center gap-4 px-4 py-4 rounded-2xl w-full transition-all duration-300 group",
-                                activeTab === tab.id ? "bg-black text-white shadow-lg shadow-black/20" : "text-neutral-500 hover:bg-neutral-100"
-                            )}
-                        >
-                            <tab.icon size={20} strokeWidth={activeTab === tab.id ? 2.5 : 2} />
-                            <span className="hidden lg:block text-sm font-bold">{tab.label}</span>
-                            {activeTab === tab.id && <motion.div layoutId="active" className="ml-auto w-1.5 h-1.5 bg-green-400 rounded-full hidden lg:block shadow-[0_0_8px_rgba(74,222,128,0.8)]" />}
-                        </button>
-                    ))}
-                </nav>
+        {/* Nav */}
+        <nav className="flex-1 px-4 space-y-2 py-8 overflow-y-auto">
+          {[
+            { id: "dashboard", icon: LayoutDashboard, label: "Overview" },
+            { id: "live", icon: Globe, label: "Live View" },
+            { id: "addons", icon: Puzzle, label: "Addons" },
+            { id: "content", icon: Palette, label: "Experience" },
+            { id: "commerce", icon: ShoppingBag, label: "Commerce" },
+            { id: "profit", icon: TrendingUp, label: "Profit" },
+            { id: "products", icon: Package, label: "Inventory" },
+            { id: "size-guide", icon: Ruler, label: "Size Guide" },
+            { id: "settings", icon: Settings, label: "System" },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={clsx(
+                "flex items-center gap-4 px-4 py-4 rounded-2xl w-full transition-all duration-300",
+                activeTab === tab.id
+                  ? "bg-black text-white"
+                  : "text-neutral-500 hover:bg-neutral-100"
+              )}
+            >
+              <tab.icon size={20} />
+              <span className="hidden lg:block text-sm font-bold">
+                {tab.label}
+              </span>
+            </button>
+          ))}
+        </nav>
 
-                <div className="p-4 border-t border-neutral-100">
-                    <button onClick={() => setIsAuthenticated(false)} className="flex items-center gap-4 px-4 py-3 w-full text-neutral-400 hover:text-red-500 transition-colors">
-                        <LogOut size={18} />
-                        <span className="hidden lg:block text-xs font-bold uppercase tracking-widest">Sign Out</span>
-                    </button>
-                </div>
-            </aside>
+        {/* Sign Out */}
+        <div className="p-4 border-t border-neutral-200">
+          <button
+            onClick={() => setIsAuthenticated(false)}
+            className="flex items-center gap-4 px-4 py-3 w-full text-neutral-400 hover:text-red-500 transition-colors"
+          >
+            <LogOut size={18} />
+            <span className="hidden lg:block text-xs font-bold uppercase">
+              Sign Out
+            </span>
+          </button>
+        </div>
+      </aside>
 
-            {/* 2. MAIN SCROLLABLE AREA */}
-            <div className="flex-1 h-full relative overflow-y-auto overflow-x-hidden" style={{ perspective: "1000px" }}>
-                <AnimatePresence mode="wait">
-                    {editorState.open && editorState.imageSrc && (
-                        <ImageEditor
-                            imageSrc={editorState.imageSrc}
-                            aspectRatio={editorState.field === 'logo' ? 1 : 16 / 9}
-                            onCancel={() => setEditorState({ open: false, file: null, imageSrc: null, field: null })}
-                            onSave={handleEditorSave}
-                        />
-                    )}
-                </AnimatePresence>
+      {/* ================= MAIN CONTENT ================= */}
+      <div className="ml-20 lg:ml-72 w-full">
+        <div className="max-w-[1400px] mx-auto p-8 lg:p-16">
 
-                <div className="max-w-[1400px] mx-auto p-8 lg:p-16 pb-40 min-h-full">
-                    <AnimatePresence mode="wait">
-                        <motion.div
-                            key={activeTab}
-                            initial={{ opacity: 0, x: 20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: -20 }}
-                            transition={{ duration: 0.3, ease: "easeOut" }}
-                        >
-                            {activeTab === "dashboard" && <DashboardTab settings={settings} />}
-                            {activeTab === "live" && <LiveViewTab />}
-                            {activeTab === "addons" && <AddonsTab settings={settings} updateSettings={updateSettings} />} {/* Render New Tab */}
-                            {activeTab === "content" && <ContentTab settings={settings} updateSettings={updateSettings} initiateUpload={initiateFileUpload} />}
-                            {activeTab === "commerce" && <CommerceTab settings={settings} calculateOrderProfit={calculateOrderProfit} updateSettings={updateSettings} />}
-                            {activeTab === "profit" && <ProfitTab settings={settings} calculateOrderProfit={calculateOrderProfit} />}
-                            {activeTab === "products" && <ProductsTab settings={settings} updateSettings={updateSettings} />}
-                            {activeTab === "size-guide" && <SizeChartTab settings={settings} updateSettings={updateSettings} />}
-                            {activeTab === "settings" && <SettingsTab settings={settings} updateSettings={updateSettings} />}
-                        </motion.div>
-                    </AnimatePresence>
-                </div>
-            </div>
-        </main>
-    );
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              {activeTab === "dashboard" && <DashboardTab settings={settings} />}
+              {activeTab === "live" && <LiveViewTab />}
+              {activeTab === "addons" && <AddonsTab settings={settings} updateSettings={updateSettings} />}
+              {activeTab === "content" && <ContentTab settings={settings} updateSettings={updateSettings} initiateUpload={initiateFileUpload} />}
+              {activeTab === "commerce" && <CommerceTab settings={settings} calculateOrderProfit={calculateOrderProfit} updateSettings={updateSettings} />}
+              {activeTab === "profit" && <ProfitTab settings={settings} calculateOrderProfit={calculateOrderProfit} />}
+              {activeTab === "products" && <ProductsTab settings={settings} updateSettings={updateSettings} initiateUpload={initiateFileUpload} />}
+              {activeTab === "size-guide" && <SizeChartTab settings={settings} updateSettings={updateSettings} />}
+              {activeTab === "settings" && <SettingsTab settings={settings} updateSettings={updateSettings} />}
+            </motion.div>
+          </AnimatePresence>
+
+        </div>
+      </div>
+    </div>
+
+    {/* Image Editor Modal */}
+    {editorState.open && editorState.imageSrc && (
+      <ImageEditor
+        imageSrc={editorState.imageSrc}
+        onSave={handleEditorSave}
+        onCancel={() => setEditorState({ open: false, file: null, imageSrc: null, field: null })}
+      />
+    )}
+  </div>
+);
 }

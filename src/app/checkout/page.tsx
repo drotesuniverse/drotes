@@ -341,6 +341,7 @@ export default function CheckoutPage() {
         email: "", firstName: "", lastName: "", address1: "", address2: "", city: "",
         country: detectedCountry || "AE", state: "", postcode: "", phone: ""
     });
+console.log(detectedCountry,"DC")
 
     // Sync country when geolocation finishes loading
     useEffect(() => {

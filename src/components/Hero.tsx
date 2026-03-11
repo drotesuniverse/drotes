@@ -91,7 +91,7 @@ export default function Hero() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 1, duration: 1 }}
-                    className="absolute bottom-28 flex flex-col items-center gap-6"
+     className="absolute bottom-10 md:bottom-14 left-1/2 -translate-x-1/2 flex flex-col items-center gap-6"
                 >
                     <Link href="/shop">
                         <button className="backdrop-blur-sm border border-white/30 text-white px-12 py-4 uppercase font-bold tracking-[0.25em] text-[10px] hover:bg-white hover:text-black hover:border-white transition-all duration-500">

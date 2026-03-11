@@ -36,18 +36,16 @@ export default function ShippingGuarantee({ className = "", variant = 'minimal' 
   // 3. Wait until settings are loaded before showing the real UI to avoid flicker.
   // If the hook provides `isLoaded` use it; otherwise fall back to checking settings presence.
   const ready = typeof isLoaded === 'boolean' ? isLoaded : Boolean(settings);
-
-
-  // 4. Safe access to config after ready
-  const config = settings?.shippingGuarantee;
-  if (!config?.enabled) return null;
-
-    if (config?.enabled && !ready) {
+  if (!ready) {
     // Skeleton placeholder keeps layout stable and prevents the brief show-then-hide flash
     return (
       <div className={`h-[64px] w-full rounded-xl bg-neutral-100 animate-pulse ${className}`} />
     );
   }
+
+  // 4. Safe access to config after ready
+  const config = settings?.shippingGuarantee;
+  if (!config?.enabled) return null;
 
   const PROTECTION_ID = String(config?.productId ?? "99999");
   const priceValue = config?.price ?? 25;
