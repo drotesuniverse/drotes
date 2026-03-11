@@ -134,12 +134,28 @@ function extractPrice(price: string) {
   return match ? Number(match[0].replace(/,/g, "")) : 0;
 }
 
-const priceRaw = item.price
-  ? item.price.replace(/[^0-9.]/g, '').replace(/^\.+/, '')
-  : "0";
+function cleanPriceString(price: string): string {
+    if (!price) return "";
+    // Replace HTML entities like &nbsp; with space
+    let cleaned = price.replace(/&nbsp;/g, ' ').replace(/&#160;/g, ' ');
+    // Replace Arabic Symbol globally
+    cleaned = cleaned.replace(/د.إ/g, 'AED').replace(/AED\s?AED/g, 'AED'); // Safety check for double replace
+    // Optional: strip HTML tags if present (unlikely for price but WP might send <span class="amount">)
+    cleaned = cleaned.replace(/<[^>]*>/g, '');
+    return cleaned.trim();
+}
+
+function parsePrice(priceIdx: string | number): number {
+    if (typeof priceIdx === 'number') return priceIdx;
+    if (!priceIdx) return 0;
+    const clean = priceIdx.replace(/[^0-9.]/g, '');
+    return parseFloat(clean);
+}
+
+const priceRaw = parsePrice(cleanPriceString(item.price))
 
 console.log(priceRaw,"PP")
-const priceDisplay = formatAddonPrice(priceRaw);
+const priceDisplay = priceRaw
   // Internal Parallax for Image
   const y = useTransform(scrollYProgress, [0, 1], [-50, 50]);
 
