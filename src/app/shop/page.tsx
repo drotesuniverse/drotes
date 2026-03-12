@@ -5,6 +5,11 @@ import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
 import { useQuery } from "@apollo/client";
 import { GET_SHOP_PRODUCTS } from "@/lib/queries";
+import { Loader2 } from "lucide-react";
+
+const Spinner = ({ className }: { className?: string }) => (
+    <Loader2 className={`animate-spin ${className}`} />
+);
 
 // No mock products - avoid hydration flashes of incorrect data
 const MOCK_PRODUCTS: any[] = [];
@@ -24,9 +29,8 @@ export default function ShopPage() {
     const products = data?.products?.nodes ? flattenVariations(data.products.nodes) : [];
 
     if (loading) return (
-        <main className="min-h-screen bg-white text-black flex items-center justify-center">
-            <div className="text-xs uppercase tracking-widest animate-pulse">Loading Collection...</div>
-        </main>
+          <div className="h-screen w-full flex items-center justify-center bg-white"><div className="flex flex-col items-center gap-4"><img src="/checkout-logo-center.jpg" className="h-8 animate-pulse opacity-50" /><Spinner className="w-5 h-5 text-neutral-300" /></div></div>
+
     );
 
     if (error) {
