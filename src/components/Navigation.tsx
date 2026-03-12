@@ -276,7 +276,7 @@ export default function Navigation({ theme = "dark" }: NavigationProps) {
                                                             <button
                                                                 onClick={() => handleRemoveItem(item.key)}
                                                                 disabled={removingKey === item.key}
-                                                                className="absolute top-0 right-0 p-2 hover:bg-neutral-100 rounded-full transition-colors text-neutral-300 hover:text-red-500 disabled:opacity-50 z-10"
+                                                                className="absolute top-0 right-0 p-2 bg-neutral-100 rounded-full transition-colors  text-red-500 disabled:opacity-50 z-10"
                                                                 title="Remove item"
                                                             >
                                                                 <Trash2 size={14} />
