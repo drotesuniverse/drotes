@@ -39,9 +39,9 @@ export default function RootLayout({
                         <CurrencyProvider>
                             <PopupManager />
                             <LiveTracker />
-                            <MembersGuard>
+                            {/* <MembersGuard> */}
                                 {children}
-                            </MembersGuard>
+                            {/* </MembersGuard> */}
                         </CurrencyProvider>
                     </ApolloProvider>
                 </body>
