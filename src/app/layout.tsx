@@ -9,7 +9,7 @@ import { client } from "@/lib/apollo";
 import PopupManager from "@/components/PopupManager";
 import MembersGuard from "@/components/MembersGuard";
 import LiveTracker from "@/components/LiveTracker";
-import Script from "next/script";
+import Script from "next/script"; // <-- ADD THIS IMPORT
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
