@@ -9,12 +9,16 @@ import ProductGallery from "@/components/ProductGallery";
 import { useCurrency } from "@/lib/currency";
 import { useParams } from "next/navigation";
 import ProductAddonPopup from "@/components/ProductAddonPopup";
-import { ShoppingBag, ChevronRight, Minus, Plus, Share2, HelpCircle, Truck, Ruler, ChevronDown } from "lucide-react";
+import { ShoppingBag, ChevronRight, Minus, Plus, Share2, HelpCircle, Truck, Ruler, ChevronDown, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { AskQuestionModal, DeliveryModal, SizeGuideModal } from "@/components/ProductModals";
 import ShippingGuarantee from "@/components/ShippingGuarantee";
 import { useAdminSettings } from "@/hooks/useAdminSettings";
+
+const Spinner = ({ className }: { className?: string }) => (
+    <Loader2 className={`animate-spin ${className}`} />
+);
 
 // Color Map for Swatches
 const COLOR_MAP: Record<string, string> = {
@@ -27,7 +31,7 @@ const COLOR_MAP: Record<string, string> = {
     "blue": "#0000ff",
     "navy": "#000080",
     "forest": "#228b22",
-};
+}; 
 
 function getColorHex(name: string) {
     if (!name) return "#e5e5e5";
@@ -269,9 +273,10 @@ export default function SingleProductPage() {
     };
 
     if (loading) return (
-        <main className="min-h-screen bg-white flex items-center justify-center">
-            <div className="text-xs uppercase tracking-widest animate-pulse">Loading Product...</div>
-        </main>
+
+
+        <div className="h-screen w-full flex items-center justify-center bg-white"><div className="flex flex-col items-center gap-4"><img src="/checkout-logo-center.jpg" className="h-8 animate-pulse opacity-50" /><Spinner className="w-5 h-5 text-neutral-300" /></div></div>
+
     );
 
     if (error) return (

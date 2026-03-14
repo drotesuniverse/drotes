@@ -35,29 +35,34 @@ export default function MembersOnlyPage() {
     const [restError, setRestError] = useState("");
 
     // Countdown Logic
-    useEffect(() => {
-        if (!isLoaded || !settings.membersOnly?.saleDate) return;
+useEffect(() => {
+  if (!isLoaded || !settings.membersOnly?.saleDate) return;
 
-        const interval = setInterval(() => {
-            const now = new Date().getTime();
-            const target = new Date(settings.membersOnly.saleDate).getTime();
-            const distance = target - now;
+  const interval = setInterval(() => {
+    const now = Date.now();
+    const target = new Date(settings.membersOnly.saleDate).getTime();
+    const distance = target - now;
 
-            if (distance < 0) {
-                clearInterval(interval);
-                window.location.href = "/";
-            } else {
-                setTimeLeft({
-                    d: Math.floor(distance / (1000 * 60 * 60 * 24)),
-                    h: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
-                    m: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
-                    s: Math.floor((distance % (1000 * 60)) / 1000),
-                });
-            }
-        }, 1000);
-        return () => clearInterval(interval);
-    }, [isLoaded, settings.membersOnly]);
+    if (distance <= 0) {
+      clearInterval(interval);
 
+      // Only redirect if the site is unlocked
+      if (!settings.membersOnly.enabled) {
+        window.location.replace("/");
+      }
+      return;
+    }
+
+    setTimeLeft({
+      d: Math.floor(distance / (1000 * 60 * 60 * 24)),
+      h: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+      m: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
+      s: Math.floor((distance % (1000 * 60)) / 1000),
+    });
+  }, 1000);
+
+  return () => clearInterval(interval);
+}, [isLoaded, settings.membersOnly?.saleDate, settings.membersOnly?.enabled]);
     const formattedTime = `${timeLeft.d}D ${timeLeft.h.toString().padStart(2, '0')}:${timeLeft.m.toString().padStart(2, '0')}:${timeLeft.s.toString().padStart(2, '0')}`;
 
 

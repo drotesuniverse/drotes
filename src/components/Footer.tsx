@@ -4,6 +4,7 @@ import { motion, useSpring, useMotionValue, useTransform } from "framer-motion";
 import { ArrowUpRight, Instagram, Twitter, Mail, ArrowRight, Globe, Lock, Youtube, Music2 } from "lucide-react";
 import { useAdminSettings } from "@/hooks/useAdminSettings";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Footer() {
     const { settings } = useAdminSettings();
@@ -150,17 +151,23 @@ function MagneticLogo() {
     };
 
     return (
-        <motion.div
-            onMouseMove={handleMouseMove}
-            onMouseLeave={handleMouseLeave}
-            style={{ x, y }}
-            className="w-fit cursor-none"
-        >
-            <h2 className="text-4xl font-bold lowercase tracking-tighter flex items-center">
-                anec<span className="text-white/20">:</span>dote
-                <div className="ml-4 w-2 h-2 bg-white rounded-full animate-pulse" />
-            </h2>
-        </motion.div>
+<motion.div
+  onMouseMove={handleMouseMove}
+  onMouseLeave={handleMouseLeave}
+  style={{ x, y }}
+  className="w-fit cursor-none flex items-center"
+>
+  <div className="relative w-[180px] h-[60px]">
+    <Image
+      src="/logo.png"
+      alt="Drotes"
+      fill
+      className="object-contain object-left brightness-0 invert"
+    />
+  </div>
+
+  <div className="ml-4 w-2 h-2 bg-white rounded-full animate-pulse" />
+</motion.div>
     );
 }
 

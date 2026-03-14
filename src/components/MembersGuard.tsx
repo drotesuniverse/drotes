@@ -11,40 +11,34 @@ export default function MembersGuard({ children }: { children: React.ReactNode }
     const [authorized, setAuthorized] = useState(false);
 
     useEffect(() => {
-        // Allow hydration first
         if (!isLoaded) return;
 
-        // Check for Admin Override OR Logged In User Cookie
-        // Note: For real security this should be server-side middleware.
-        const hasAuth = document.cookie.split('; ').some(row => row.startsWith('members_access=') || row.startsWith('auth_token='));
-        const isAdmin = window.location.pathname.startsWith('/miniadmin'); // Simple check to allow admin access
+        const hasAuth = document.cookie
+            .split("; ")
+            .some(row => row.startsWith("members_access=") || row.startsWith("auth_token="));
 
-        // Define public routes (Members Page, API)
-        const isPublic = pathname === "/members-only" || pathname.startsWith("/api");
+        const isAdmin = pathname.startsWith("/miniadmin");
 
-        if (settings.membersOnly?.enabled) {
-            // LOCK ACTIVE
-            if (!hasAuth && !isAdmin && !isPublic) {
-                router.push("/members-only");
-            } else {
-                setAuthorized(true);
-            }
-        } else {
-            // LOCK INACTIVE
-            // If user stays on members-only when disabled, redirect home
-            if (pathname === "/members-only") {
-                router.push("/");
-            } else {
-                setAuthorized(true);
+        const isMembersPage = pathname === "/members-only";
+        const isApi = pathname.startsWith("/api");
+
+        if (settings?.membersOnly?.enabled) {
+            // SITE LOCKED
+            if (!hasAuth && !isAdmin && !isMembersPage && !isApi) {
+                router.replace("/members-only"); // replace prevents history loops
+                return;
             }
         }
-    }, [isLoaded, settings.membersOnly?.enabled, pathname, router]);
 
-    // Show nothing while checking (or a loader) to prevent content flash
-    if (!isLoaded) return null; // Or a global loader
+        setAuthorized(true);
+    }, [isLoaded, settings?.membersOnly?.enabled, pathname, router]);
 
-    // If lock is enabled and we are not authorized yet (calculating), show nothing
-    // if (settings.membersOnly?.enabled && !authorized && pathname !== "/members-only") return null;
+    if (!isLoaded) return null;
+
+    // Prevent flashing protected content
+    if (settings?.membersOnly?.enabled && !authorized && pathname !== "/members-only") {
+        return null;
+    }
 
     return <>{children}</>;
 }

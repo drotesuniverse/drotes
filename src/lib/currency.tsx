@@ -44,6 +44,16 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
     const [detectedCountry, setDetectedCountry] = useState("AE");
     const [loading, setLoading] = useState(true);
 
+useEffect(() => {
+  fetch("/api/country")
+    .then(res => res.json())
+    .then(data => {
+        console.log("DDF",data)
+      setDetectedCountry(data.country);
+    });
+}, []);
+
+
     // Fetch currency info from Curcy API on mount
     useEffect(() => {
         const fetchCurrencyInfo = async () => {

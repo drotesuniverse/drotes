@@ -10,9 +10,7 @@ export async function GET(req: NextRequest) {
     const userAgent = req.headers.get('user-agent');
 
     const endpoints = [
-        `${baseUrl}/wp-json/wmc/v1/params`,
-        `${baseUrl}/wp-json/wmc/v1/rates`,
-        `${baseUrl}/wp-json/wc/v3/data/currencies`,
+        `${baseUrl}/wp-json/wmc/v1/params`
     ];
 
     // Helper with 4s timeout

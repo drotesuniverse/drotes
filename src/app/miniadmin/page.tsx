@@ -85,7 +85,7 @@ const BentoAction = ({ title, subtitle, icon: Icon, href }: any) => (
 const DashboardTab = ({ settings }: { settings: any }) => (
     <motion.div variants={containerVar} initial="hidden" animate="show" className="space-y-8 pb-20">
         <motion.div variants={itemVar} className="mb-12">
-            <h1 className="text-4xl font-black tracking-tighter mb-2">Overview</h1>
+            <h1 className="text-4xl font-black tracking-tighter mb-2 text-black">Overview</h1>
             <p className="text-neutral-400">Welcome back, Administrator.</p>
         </motion.div>
 
@@ -132,7 +132,7 @@ const ContentTab = ({ settings, updateSettings, initiateUpload }: any) => {
     return (
         <motion.div variants={containerVar} initial="hidden" animate="show" className="space-y-12 pb-20">
             <motion.div variants={itemVar}>
-                <h1 className="text-4xl font-black tracking-tighter mb-2">Experience</h1>
+                <h1 className="text-4xl font-black tracking-tighter mb-2 text-black">Experience</h1>
                 <p className="text-neutral-400">Manage visual storytelling.</p>
             </motion.div>
 
@@ -194,8 +194,8 @@ const ContentTab = ({ settings, updateSettings, initiateUpload }: any) => {
                 {/* BRAND LOGO */}
                 <motion.div variants={itemVar} className="bg-white p-8 rounded-[32px] border border-neutral-100 shadow-sm">
                     <div className="flex justify-between items-center mb-6">
-                        <h3 className="text-lg font-bold">Brand Logo</h3>
-                        <button className="text-xs font-bold underline" onClick={() => document.getElementById("logo-upload")?.click()}>Replace</button>
+                        <h3 className="text-lg font-bold text-black">Brand Logo</h3>
+                        <button className="text-xs font-bold underline text-black" onClick={() => document.getElementById("logo-upload")?.click()}>Replace</button>
                         <input id="logo-upload" type="file" className="hidden" onChange={(e) => e.target.files?.[0] && initiateUpload('logo', e.target.files[0])} />
                     </div>
                     <div className="h-32 bg-neutral-50 rounded-2xl flex items-center justify-center border border-dashed border-neutral-200">
@@ -206,7 +206,7 @@ const ContentTab = ({ settings, updateSettings, initiateUpload }: any) => {
                 {/* POPUP CONFIG */}
                 <motion.div variants={itemVar} className="bg-white p-8 rounded-[32px] border border-neutral-100 shadow-sm">
                     <div className="flex justify-between items-center mb-6">
-                        <h3 className="text-lg font-bold">Inner Circle Popup</h3>
+                        <h3 className="text-lg font-bold text-black">Inner Circle Popup</h3>
                         <div
                             onClick={() => updateSettings({ popup: { ...settings.popup, enabled: !settings.popup.enabled } })}
                             className={`w-12 h-7 rounded-full p-1 cursor-pointer transition-colors duration-300 ${settings.popup.enabled ? "bg-black" : "bg-neutral-200"}`}
@@ -215,12 +215,12 @@ const ContentTab = ({ settings, updateSettings, initiateUpload }: any) => {
                         </div>
                     </div>
                     <input
-                        className="w-full bg-neutral-50 border-none rounded-xl p-4 text-sm font-bold mb-3 focus:ring-0"
+                        className="w-full bg-neutral-50 border-none rounded-xl p-4 text-sm font-bold mb-3 focus:ring-0 text-black"
                         value={settings.popup.title}
                         onChange={(e) => updateSettings({ popup: { ...settings.popup, title: e.target.value } })}
                     />
                     <textarea
-                        className="w-full bg-neutral-50 border-none rounded-xl p-4 text-sm resize-none h-24 focus:ring-0"
+                        className="w-full bg-neutral-50 border-none rounded-xl p-4 text-sm resize-none h-24 focus:ring-0 text-black"
                         value={settings.popup.text}
                         onChange={(e) => updateSettings({ popup: { ...settings.popup, text: e.target.value } })}
                     />
@@ -230,7 +230,7 @@ const ContentTab = ({ settings, updateSettings, initiateUpload }: any) => {
             {/* RESTORED: MENU BUILDER */}
             <motion.div variants={itemVar} className="bg-white p-8 rounded-[32px] border border-neutral-100 shadow-sm">
                 <div className="flex justify-between items-center mb-6">
-                    <h3 className="text-lg font-bold">Navigation Menu</h3>
+                    <h3 className="text-lg font-bold text-black">Navigation Menu</h3>
                     <span className="text-xs font-mono text-neutral-400">{settings.menuItems.length} Links</span>
                 </div>
 
@@ -243,7 +243,7 @@ const ContentTab = ({ settings, updateSettings, initiateUpload }: any) => {
                                     <input
                                         value={item.name}
                                         onChange={(e) => updateSettings({ menuItems: settings.menuItems.map((i: any) => i.id === item.id ? { ...i, name: e.target.value } : i) })}
-                                        className="bg-transparent font-bold text-sm focus:outline-none"
+                                        className="bg-transparent font-bold text-sm focus:outline-none text-black"
                                     />
                                     <input
                                         value={item.href}
@@ -262,13 +262,13 @@ const ContentTab = ({ settings, updateSettings, initiateUpload }: any) => {
                         placeholder="Link Name"
                         value={newItemName}
                         onChange={(e) => setNewItemName(e.target.value)}
-                        className="flex-1 bg-transparent text-sm font-bold focus:outline-none"
+                        className="flex-1 bg-transparent text-sm font-bold focus:outline-none text-black"
                     />
                     <input
                         placeholder="/path"
                         value={newItemHref}
                         onChange={(e) => setNewItemHref(e.target.value)}
-                        className="flex-1 bg-transparent text-sm font-mono focus:outline-none"
+                        className="flex-1 bg-transparent text-sm font-mono focus:outline-none text-black"
                     />
                     <button onClick={addMenuItem} className="w-8 h-8 bg-black text-white rounded-lg flex items-center justify-center hover:scale-110 transition-transform"><Plus size={16} /></button>
                 </div>
@@ -290,26 +290,26 @@ const CommerceTab = ({ settings, calculateOrderProfit, updateSettings }: any) =>
                         <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} className="bg-white w-full max-w-2xl rounded-[32px] overflow-hidden shadow-2xl">
                             <div className="p-8 border-b border-neutral-100 flex justify-between items-center">
                                 <div>
-                                    <h3 className="text-2xl font-black">{selectedOrder.id}</h3>
+                                    <h3 className="text-2xl font-black text-black">{selectedOrder.id}</h3>
                                     <p className="text-neutral-400 text-sm">{selectedOrder.customer} • {selectedOrder.date}</p>
                                 </div>
-                                <button onClick={() => { setSelectedOrder(null); setShowLabel(false); }} className="p-2 hover:bg-neutral-100 rounded-full"><X size={20} /></button>
+                                <button onClick={() => { setSelectedOrder(null); setShowLabel(false); }} className="p-2 hover:bg-neutral-100 rounded-full"><X size={20} className="text-black" /></button>
                             </div>
 
                             <div className="p-8 bg-neutral-50 space-y-4">
                                 {selectedOrder.items.map((item, i) => (
                                     <div key={i} className="flex justify-between items-center bg-white p-4 rounded-xl border border-neutral-100">
                                         <div className="flex items-center gap-4">
-                                            <div className="w-10 h-10 bg-neutral-100 rounded-lg flex items-center justify-center text-xs font-bold">{item.quantity}x</div>
+                                            <div className="w-10 h-10 bg-neutral-100 rounded-lg flex items-center justify-center text-xs font-bold text-black">{item.quantity}x</div>
                                             <div>
-                                                <div className="font-bold text-sm">{item.name}</div>
+                                                <div className="font-bold text-sm text-black">{item.name}</div>
                                                 <div className="text-[10px] text-neutral-400 font-mono">{selectedOrder.currency} {item.price}</div>
                                             </div>
                                         </div>
-                                        <div className="font-bold text-sm">{selectedOrder.currency} {item.price * item.quantity}</div>
+                                        <div className="font-bold text-sm text-black">{selectedOrder.currency} {item.price * item.quantity}</div>
                                     </div>
                                 ))}
-                                <div className="flex justify-between font-bold pt-4 border-t border-neutral-200">
+                                <div className="flex justify-between font-bold pt-4 border-t border-neutral-200 text-black">
                                     <span>Total</span>
                                     <span>{selectedOrder.currency} {selectedOrder.total}</span>
                                 </div>
@@ -327,7 +327,6 @@ const CommerceTab = ({ settings, calculateOrderProfit, updateSettings }: any) =>
                                     <button
                                         onClick={() => {
                                             const updatedOrders = settings.orders.map((o: Order) => o.id === selectedOrder.id ? { ...o, status: 'completed' } : o);
-                                            // Ideally update captured orders too
                                             updateSettings({ orders: updatedOrders });
                                             setSelectedOrder({ ...selectedOrder, status: 'completed' });
                                         }}
@@ -345,7 +344,7 @@ const CommerceTab = ({ settings, calculateOrderProfit, updateSettings }: any) =>
             </AnimatePresence>
 
             <motion.div variants={itemVar}>
-                <h1 className="text-4xl font-black tracking-tighter mb-2">Commerce</h1>
+                <h1 className="text-4xl font-black tracking-tighter mb-2 text-black">Commerce</h1>
                 <p className="text-neutral-400">Track orders and profitability.</p>
             </motion.div>
 
@@ -371,19 +370,19 @@ const CommerceTab = ({ settings, calculateOrderProfit, updateSettings }: any) =>
                                         onClick={() => setSelectedOrder(order)}
                                         className="group hover:bg-neutral-50 transition-colors cursor-pointer"
                                     >
-                                        <td className="p-6 font-bold font-mono group-hover:underline">{order.id}</td>
-                                        <td className="p-6 font-medium">{order.customer}</td>
+                                        <td className="p-6 font-bold font-mono group-hover:underline text-black">{order.id}</td>
+                                        <td className="p-6 font-medium text-black">{order.customer}</td>
                                         <td className="p-6 text-neutral-500">{order.date}</td>
                                         <td className="p-6">
                                             <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${order.status === 'completed' || order.status === 'shipped' ? 'bg-green-100 text-green-700' :
                                                 order.status === 'processing' ? 'bg-amber-100 text-amber-700' :
-                                                    'bg-red-100 text-red-700' // Fail/Cancel/Refund
+                                                    'bg-red-100 text-red-700'
                                                 }`}>
                                                 {order.status}
                                             </span>
                                         </td>
                                         <td className="p-6 text-right font-bold">
-                                            <div>{order.currency || "AED"} {order.total}</div>
+                                            <div className="text-black">{order.currency || "AED"} {order.total}</div>
                                             {order.currency !== 'AED' && (
                                                 <div className="text-[10px] text-neutral-400 font-medium">
                                                     ≈ AED {calculateOrderProfit(order).adjustedTotal.toFixed(2)}
@@ -408,10 +407,8 @@ const CommerceTab = ({ settings, calculateOrderProfit, updateSettings }: any) =>
 };
 
 const ProductsTab = ({ settings, updateSettings, initiateUpload }: any) => {
-    // Determine currency symbol from settings or default
     const currencySymbol = settings.currency || "AED";
 
-    // Fetch Live Products
     const { loading, data, error } = useQuery(GET_SHOP_PRODUCTS, {
         variables: { first: 50 },
         fetchPolicy: 'cache-and-network'
@@ -420,14 +417,12 @@ const ProductsTab = ({ settings, updateSettings, initiateUpload }: any) => {
     const [editingProduct, setEditingProduct] = useState<any>(null);
     const [isUploading, setIsUploading] = useState(false);
 
-    // Helper to parse price string (e.g. "AED 1,250.00" -> 1250)
     const parsePrice = (priceStr: string) => {
         if (!priceStr) return 0;
         return parseFloat(priceStr.replace(/[^0-9.]/g, '')) || 0;
     };
 
     const products = (data?.products?.nodes || []).map((p: any) => {
-        // 1. Parent Product
         const parent = {
             id: String(p.databaseId),
             name: p.name,
@@ -436,7 +431,6 @@ const ProductsTab = ({ settings, updateSettings, initiateUpload }: any) => {
             type: p.variations ? 'variable' : 'simple'
         };
 
-        // 2. Variations (if any)
         const variations = (p.variations?.nodes || []).map((v: any) => ({
             id: String(v.databaseId),
             name: v.name || `${p.name} - Variation ${v.databaseId}`,
@@ -452,7 +446,6 @@ const ProductsTab = ({ settings, updateSettings, initiateUpload }: any) => {
     if (loading && !data) return <div className="p-8 text-neutral-400 animate-pulse">Loading Inventory...</div>;
     if (error && !data) return <div className="p-8 text-red-500">Failed to load inventory.</div>;
 
-    // Helper Card Component for reusability
     const InventoryCard = ({ item, isVariation = false }: { item: any, isVariation?: boolean }) => (
         <motion.div
             layout
@@ -460,7 +453,6 @@ const ProductsTab = ({ settings, updateSettings, initiateUpload }: any) => {
             animate={{ opacity: 1 }}
             className={`bg-white rounded-[24px] border border-neutral-100 shadow-sm flex flex-col group overflow-hidden relative ${isVariation ? 'p-4 min-w-[200px]' : 'p-6'}`}
         >
-            {/* Type Badge */}
             {isVariation && (
                 <span className="absolute top-4 left-4 bg-neutral-900/90 backdrop-blur-md text-white text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-widest z-10 border border-white/10 shadow-lg">
                     Variation
@@ -468,8 +460,8 @@ const ProductsTab = ({ settings, updateSettings, initiateUpload }: any) => {
             )}
 
             <div className="flex justify-between items-start mb-4">
-                <h3 className={`font-bold leading-tight ${isVariation ? 'text-sm' : 'text-lg'}`}>{item.name.replace(item.parentId ? /.*?- / : '', '')}</h3>
-                <span className="text-[10px] font-mono bg-neutral-100 px-2 py-1 rounded whitespace-nowrap ml-2">
+                <h3 className={`font-bold leading-tight text-black ${isVariation ? 'text-sm' : 'text-lg'}`}>{item.name.replace(item.parentId ? /.*?- / : '', '')}</h3>
+                <span className="text-[10px] font-mono bg-neutral-100 px-2 py-1 rounded whitespace-nowrap ml-2 text-black">
                     AED {settings.productPrices?.[item.name] ?? item.price}
                 </span>
             </div>
@@ -485,7 +477,7 @@ const ProductsTab = ({ settings, updateSettings, initiateUpload }: any) => {
                     onClick={() => setEditingProduct(item)}
                     className="absolute top-2 right-2 p-2 bg-white rounded-full shadow-sm opacity-0 group-hover:opacity-100 transition-opacity transform hover:scale-110 z-20"
                 >
-                    <Settings size={14} />
+                    <Settings size={14} className="text-black" />
                 </button>
             </div>
 
@@ -497,7 +489,7 @@ const ProductsTab = ({ settings, updateSettings, initiateUpload }: any) => {
                         </div>
                         <input
                             type="number"
-                            className="w-full bg-neutral-50 border-none rounded-xl p-2 text-sm font-bold focus:ring-0"
+                            className="w-full bg-neutral-50 border-none rounded-xl p-2 text-sm font-bold focus:ring-0 text-black"
                             placeholder={String(item.price)}
                             value={settings.productPrices?.[item.name] || ""}
                             onChange={(e) => updateSettings({ productPrices: { ...settings.productPrices, [item.name]: parseFloat(e.target.value) } })}
@@ -509,7 +501,7 @@ const ProductsTab = ({ settings, updateSettings, initiateUpload }: any) => {
                             <span>Size Guide</span>
                         </div>
                         <select
-                            className="w-full bg-neutral-50 border-none rounded-xl p-2 text-[11px] font-bold focus:ring-0 appearance-none"
+                            className="w-full bg-neutral-50 border-none rounded-xl p-2 text-[11px] font-bold focus:ring-0 appearance-none text-black"
                             value={settings.productSizeCharts?.[item.name] || ""}
                             onChange={(e) => updateSettings({
                                 productSizeCharts: { ...settings.productSizeCharts, [item.name]: e.target.value }
@@ -535,25 +527,23 @@ const ProductsTab = ({ settings, updateSettings, initiateUpload }: any) => {
                     <div className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
                         <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} className="bg-white w-full max-w-md rounded-[32px] p-8 shadow-2xl">
                             <div className="flex justify-between mb-6">
-                                <h3 className="text-xl font-bold">Edit Product</h3>
-                                <button onClick={() => setEditingProduct(null)}><X size={20} /></button>
+                                <h3 className="text-xl font-bold text-black">Edit Product</h3>
+                                <button onClick={() => setEditingProduct(null)}><X size={20} className="text-black" /></button>
                             </div>
 
                             <div className="space-y-4">
                                 <div>
                                     <label className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 block mb-2">Display Name</label>
                                     <input
-                                        className="w-full bg-neutral-50 p-3 rounded-xl font-bold text-sm"
+                                        className="w-full bg-neutral-50 p-3 rounded-xl font-bold text-sm text-black"
                                         placeholder={editingProduct.name}
-                                    // Logic to save name override would go here (omitted for brevity, focus on Cost/Image)
                                     />
                                 </div>
                                 <button
                                     onClick={() => {
-                                        // This would ideally open the image editor flow
                                         document.getElementById('product-override-upload')?.click();
                                     }}
-                                    className="w-full h-32 bg-neutral-50 rounded-xl border border-dashed border-neutral-300 flex flex-col items-center justify-center gap-2 text-neutral-400 hover:bg-neutral-100 hover:border-black transition-all"
+                                    className="w-full h-32 bg-neutral-50 rounded-xl border border-dashed border-neutral-300 flex flex-col items-center justify-center gap-2 text-neutral-400 hover:bg-neutral-100 hover:border-black transition-all hover:text-black"
                                 >
                                     <Upload size={20} />
                                     <span className="text-xs font-bold uppercase">Change Main Image</span>
@@ -589,7 +579,6 @@ const ProductsTab = ({ settings, updateSettings, initiateUpload }: any) => {
                                             </div>
                                         ))}
 
-                                        {/* Upload Button */}
                                         <button
                                             disabled={isUploading}
                                             onClick={() => document.getElementById('gallery-upload')?.click()}
@@ -638,14 +627,13 @@ const ProductsTab = ({ settings, updateSettings, initiateUpload }: any) => {
             </AnimatePresence>
 
             <motion.div variants={itemVar}>
-                <h1 className="text-4xl font-black tracking-tighter mb-2">Inventory</h1>
+                <h1 className="text-4xl font-black tracking-tighter mb-2 text-black">Inventory</h1>
                 <p className="text-neutral-400">Manage costs and assets.</p>
             </motion.div>
 
             <div className="space-y-16">
                 {products.map((p: any) => (
                     <motion.div key={p.id} variants={itemVar} className="space-y-6">
-                        {/* Parent Product Section */}
                         <div className="flex items-center gap-4">
                             <div className="h-px bg-neutral-200 flex-1"></div>
                             <span className="text-xs font-bold uppercase tracking-widest text-neutral-400">{p.name} Family</span>
@@ -653,12 +641,10 @@ const ProductsTab = ({ settings, updateSettings, initiateUpload }: any) => {
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                            {/* Parent Card */}
                             <div className="md:col-span-1">
                                 <InventoryCard item={p} />
                             </div>
 
-                            {/* Variations Grid */}
                             {p.variations.length > 0 && (
                                 <div className="md:col-span-3 bg-neutral-50/50 rounded-[32px] p-6 border border-neutral-100/50 flex flex-col justify-center">
                                     <div className="flex items-center gap-2 mb-6">
@@ -682,13 +668,11 @@ const ProductsTab = ({ settings, updateSettings, initiateUpload }: any) => {
 // --- NEW ADDONS TAB ---
 
 const AddonsTab = ({ settings, updateSettings }: any) => {
-    // Fetch Live Products from WooCommerce
     const { loading, data, error } = useQuery(GET_SHOP_PRODUCTS, { variables: { first: 50 }, fetchPolicy: 'cache-and-network' });
     const products = data?.products?.nodes || [];
 
-    const toggleAddon = (id: string, name: string) => { // Using name/slug or DBID? using DB ID is safest
+    const toggleAddon = (id: string, name: string) => {
         const current = settings.addonEnabledProducts || [];
-        // Important: databaseId is integer from GraphQL, settings handles it as string/number mismatch potentially
         const idStr = String(id);
 
         const exists = current.includes(idStr);
@@ -705,7 +689,7 @@ const AddonsTab = ({ settings, updateSettings }: any) => {
     return (
         <motion.div variants={containerVar} initial="hidden" animate="show" className="space-y-8 pb-20">
             <motion.div variants={itemVar}>
-                <h1 className="text-4xl font-black tracking-tighter mb-2">Personalization</h1>
+                <h1 className="text-4xl font-black tracking-tighter mb-2 text-black">Personalization</h1>
                 <p className="text-neutral-400">Manage interactive addons per product.</p>
             </motion.div>
 
@@ -770,7 +754,6 @@ const SizeChartTab = ({ settings, updateSettings }: any) => {
         updateSettings({ sizeCharts: (settings.sizeCharts || []).filter((c: any) => c.id !== id) });
     };
 
-    // Table Grid Handlers
     const addColumn = () => {
         const newChart = { ...editingChart };
         newChart.headers.push("New Column");
@@ -834,7 +817,6 @@ const SizeChartTab = ({ settings, updateSettings }: any) => {
             newChart.rows[rowIndex][colIndex] = val;
         } else {
             if (!newChart.alternateRows) {
-                // Initialize alternateRows from current rows if it doesn't exist
                 newChart.alternateRows = newChart.rows.map((row: string[]) => [...row]);
             }
             newChart.alternateRows[rowIndex][colIndex] = val;
@@ -846,7 +828,7 @@ const SizeChartTab = ({ settings, updateSettings }: any) => {
         <motion.div variants={containerVar} initial="hidden" animate="show" className="space-y-8 pb-20">
             <motion.div variants={itemVar} className="flex justify-between items-end">
                 <div>
-                    <h1 className="text-4xl font-black tracking-tighter mb-2">Size Guides</h1>
+                    <h1 className="text-4xl font-black tracking-tighter mb-2 text-black">Size Guides</h1>
                     <p className="text-neutral-400">Manage interactive measurement tables for your products.</p>
                 </div>
                 <button
@@ -878,7 +860,7 @@ const SizeChartTab = ({ settings, updateSettings }: any) => {
                             </div>
                         </div>
 
-                        <h3 className="text-xl font-black mb-1">{chart.name}</h3>
+                        <h3 className="text-xl font-black mb-1 text-black">{chart.name}</h3>
                         <div className="text-[10px] font-mono text-neutral-400 uppercase tracking-widest mb-6">
                             {(chart.headers?.length || 0)} Columns • {(chart.rows?.length || 0)} Rows
                         </div>
@@ -896,7 +878,7 @@ const SizeChartTab = ({ settings, updateSettings }: any) => {
                                     {(chart.rows || []).slice(0, 2).map((row: string[], ri: number) => (
                                         <tr key={ri}>
                                             {(row || []).slice(0, 3).map((cell: string, ci: number) => (
-                                                <td key={ci} className="py-2 font-medium border-b border-neutral-100">{cell}</td>
+                                                <td key={ci} className="py-2 font-medium border-b border-neutral-100 text-black">{cell}</td>
                                             ))}
                                         </tr>
                                     ))}
@@ -920,7 +902,7 @@ const SizeChartTab = ({ settings, updateSettings }: any) => {
                             <div className="p-8 border-b border-neutral-100 flex justify-between items-center bg-white/10 backdrop-blur-xl">
                                 <div>
                                     <input
-                                        className="text-3xl font-black bg-transparent border-none focus:ring-0 p-0 tracking-tighter"
+                                        className="text-3xl font-black bg-transparent border-none focus:ring-0 p-0 tracking-tighter text-black"
                                         value={editingChart.name}
                                         onChange={(e) => setEditingChart({ ...editingChart, name: e.target.value })}
                                         autoFocus
@@ -957,7 +939,7 @@ const SizeChartTab = ({ settings, updateSettings }: any) => {
                                 <div className="flex gap-4">
                                     <button
                                         onClick={() => setEditingChart(null)}
-                                        className="px-6 py-3 border border-neutral-200 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-neutral-50 transition-all"
+                                        className="px-6 py-3 border border-neutral-200 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-neutral-50 transition-all text-black"
                                     >
                                         Cancel
                                     </button>
@@ -999,7 +981,7 @@ const SizeChartTab = ({ settings, updateSettings }: any) => {
                                                 )}
                                             </div>
                                             <div className="flex-1 space-y-4">
-                                                <h4 className="text-lg font-bold">Guide Visual</h4>
+                                                <h4 className="text-lg font-bold text-black">Guide Visual</h4>
                                                 <p className="text-sm text-neutral-500 max-w-sm leading-relaxed">
                                                     Upload a measurement diagram or product visual to help customers understand how to measure. This will be shown alongside the data table.
                                                 </p>
@@ -1112,7 +1094,7 @@ const SizeChartTab = ({ settings, updateSettings }: any) => {
                                                                 {row.map((cell: string, ci: number) => (
                                                                     <td key={ci} className="p-0 border-r border-neutral-100 last:border-r-0">
                                                                         <input
-                                                                            className="w-full h-16 bg-transparent border-none focus:ring-2 focus:ring-black/5 px-6 font-bold text-sm text-center"
+                                                                            className="w-full h-16 bg-transparent border-none focus:ring-2 focus:ring-black/5 px-6 font-bold text-sm text-center text-black"
                                                                             value={activeEditUnit === "primary" ? cell : (editingChart.alternateRows?.[ri]?.[ci] || "")}
                                                                             placeholder={activeEditUnit === "alternate" ? getAutoPlaceholder(cell) : "0"}
                                                                             onChange={(e) => updateCell(ri, ci, e.target.value)}
@@ -1167,7 +1149,6 @@ const SizeChartTab = ({ settings, updateSettings }: any) => {
 const ProfitTab = ({ settings, calculateOrderProfit }: any) => {
     const allOrders = [...(settings.capturedOrders || []), ...settings.orders].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
-    // Analytics Aggregation
     const now = new Date();
     const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
     const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay())).getTime();
@@ -1188,7 +1169,7 @@ const ProfitTab = ({ settings, calculateOrderProfit }: any) => {
     return (
         <motion.div variants={containerVar} initial="hidden" animate="show" className="space-y-8 pb-20">
             <motion.div variants={itemVar}>
-                <h1 className="text-4xl font-black tracking-tighter mb-2">Profit Analytics</h1>
+                <h1 className="text-4xl font-black tracking-tighter mb-2 text-black">Profit Analytics</h1>
                 <p className="text-neutral-400">Net profit breakdown per period.</p>
             </motion.div>
 
@@ -1201,7 +1182,7 @@ const ProfitTab = ({ settings, calculateOrderProfit }: any) => {
 
             <motion.div variants={itemVar} className="bg-white rounded-[32px] border border-neutral-100 shadow-sm overflow-hidden">
                 <div className="p-8 border-b border-neutral-100">
-                    <h3 className="font-bold text-lg">Order Profitability</h3>
+                    <h3 className="font-bold text-lg text-black">Order Profitability</h3>
                 </div>
                 <div className="overflow-x-auto">
                     <table className="w-full text-left text-sm">
@@ -1221,7 +1202,7 @@ const ProfitTab = ({ settings, calculateOrderProfit }: any) => {
 
                                 return (
                                     <tr key={order.id} className="group hover:bg-neutral-50 transition-colors">
-                                        <td className="p-6 font-bold font-mono">
+                                        <td className="p-6 font-bold font-mono text-black">
                                             {order.id}
                                             <div className="text-[10px] text-neutral-400 font-sans mt-0.5 w-max">
                                                 {order.customer}
@@ -1231,16 +1212,13 @@ const ProfitTab = ({ settings, calculateOrderProfit }: any) => {
                                         </td>
                                         <td className="p-6 text-neutral-500">{order.date}</td>
 
-                                        {/* Revenue: Show Original & Converted Hint */}
-                                        <td className="p-6 text-right font-medium">
+                                        <td className="p-6 text-right font-medium text-black">
                                             <div>{order.currency || "AED"} {order.total}</div>
                                             {isConverted && <div className="text-[10px] text-neutral-400">≈ AED {adjustedTotal.toFixed(2)}</div>}
                                         </td>
 
-                                        {/* Cost: Always AED */}
                                         <td className="p-6 text-right text-neutral-500">AED {totalCost.toFixed(2)}</td>
 
-                                        {/* Profit: Always AED */}
                                         <td className="p-6 text-right font-mono">
                                             <div className={clsx("font-bold", profit >= 0 ? "text-green-600" : "text-red-500")}>
                                                 {profit >= 0 ? '+' : ''}AED {profit.toFixed(2)}
@@ -1259,7 +1237,6 @@ const ProfitTab = ({ settings, calculateOrderProfit }: any) => {
 };
 
 const SettingsTab = ({ settings, updateSettings }: any) => {
-    // Helper to update rates
     const updateRate = (currency: string, val: string) => {
         const newRates = { ...settings.exchangeRates, [currency]: parseFloat(val) };
         updateSettings({ exchangeRates: newRates });
@@ -1268,7 +1245,7 @@ const SettingsTab = ({ settings, updateSettings }: any) => {
     return (
         <motion.div variants={containerVar} initial="hidden" animate="show" className="space-y-8 pb-20">
             <motion.div variants={itemVar}>
-                <h1 className="text-4xl font-black tracking-tighter mb-2">System Configuration</h1>
+                <h1 className="text-4xl font-black tracking-tighter mb-2 text-black">System Configuration</h1>
                 <p className="text-neutral-400">Manage global settings and financial parameters.</p>
             </motion.div>
 
@@ -1347,7 +1324,7 @@ const SettingsTab = ({ settings, updateSettings }: any) => {
                         <TrendingUp size={20} />
                     </div>
                     <div>
-                        <h3 className="font-bold text-lg">Exchange Rates</h3>
+                        <h3 className="font-bold text-lg text-black">Exchange Rates</h3>
                         <p className="text-neutral-400 text-sm">Define how many units of foreign currency equal 1 AED using the 'Base AED' standard.</p>
                     </div>
                 </div>
@@ -1361,7 +1338,7 @@ const SettingsTab = ({ settings, updateSettings }: any) => {
                             <input
                                 type="number"
                                 step="0.01"
-                                className="w-full bg-white border border-neutral-200 rounded-lg px-3 py-2 font-mono text-sm font-bold"
+                                className="w-full bg-white border border-neutral-200 rounded-lg px-3 py-2 font-mono text-sm font-bold text-black"
                                 value={settings.exchangeRates?.[curr] || ''}
                                 onChange={(e) => updateRate(curr, e.target.value)}
                                 placeholder="e.g. 3.67"
@@ -1388,7 +1365,7 @@ const SettingsTab = ({ settings, updateSettings }: any) => {
                                 <ShieldCheck size={20} />
                             </div>
                             <div>
-                                <h3 className="font-bold text-lg">Shipping Guarantee</h3>
+                                <h3 className="font-bold text-lg text-black">Shipping Guarantee</h3>
                                 <p className="text-neutral-400 text-sm">Offer paid protection at checkout.</p>
                             </div>
                         </div>
@@ -1424,7 +1401,7 @@ const SettingsTab = ({ settings, updateSettings }: any) => {
                                         type="number"
                                         value={settings.shippingGuarantee.price}
                                         onChange={(e) => updateSettings({ shippingGuarantee: { ...settings.shippingGuarantee, price: parseFloat(e.target.value) } })}
-                                        className="w-full bg-neutral-50 border-none rounded-xl pl-12 pr-4 py-3 font-bold text-sm focus:ring-0"
+                                        className="w-full bg-neutral-50 border-none rounded-xl pl-12 pr-4 py-3 font-bold text-sm focus:ring-0 text-black"
                                     />
                                 </div>
                                 <p className="text-[10px] text-neutral-400 mt-2">Auto-converts to user currency.</p>
@@ -1435,7 +1412,7 @@ const SettingsTab = ({ settings, updateSettings }: any) => {
                                     type="text"
                                     value={settings.shippingGuarantee.productId}
                                     onChange={(e) => updateSettings({ shippingGuarantee: { ...settings.shippingGuarantee, productId: e.target.value } })}
-                                    className="w-full bg-neutral-50 border-none rounded-xl px-4 py-3 font-mono text-sm focus:ring-0"
+                                    className="w-full bg-neutral-50 border-none rounded-xl px-4 py-3 font-mono text-sm focus:ring-0 text-black"
                                     placeholder="e.g. 15402"
                                 />
                                 <p className="text-[10px] text-neutral-400 mt-2">ID of the virtual product in WooCommerce.</p>
@@ -1452,7 +1429,7 @@ const SettingsTab = ({ settings, updateSettings }: any) => {
                         <Instagram size={20} />
                     </div>
                     <div>
-                        <h3 className="font-bold text-lg">Social Presence</h3>
+                        <h3 className="font-bold text-lg text-black">Social Presence</h3>
                         <p className="text-neutral-400 text-sm">Manage your brand's social media usernames for the footer.</p>
                     </div>
                 </div>
@@ -1470,7 +1447,7 @@ const SettingsTab = ({ settings, updateSettings }: any) => {
                                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 text-xs font-bold">@</span>
                                 <input
                                     type="text"
-                                    className="w-full bg-neutral-50 border-none rounded-xl pl-8 pr-4 py-3 text-sm font-bold focus:ring-0"
+                                    className="w-full bg-neutral-50 border-none rounded-xl pl-8 pr-4 py-3 text-sm font-bold focus:ring-0 text-black"
                                     placeholder="username"
                                     value={(settings.socialLinks as any)?.[platform.key] || ""}
                                     onChange={(e) => updateSettings({
@@ -1530,7 +1507,6 @@ const LiveViewTab = () => {
         recent: []
     });
 
-    // Fetch stats every 3 seconds
     useEffect(() => {
         const fetchStats = async () => {
             try {
@@ -1546,7 +1522,6 @@ const LiveViewTab = () => {
         return () => clearInterval(interval);
     }, []);
 
-    // Interactive Cobe Globe with RESPONSIVE sizing
     useEffect(() => {
         if (!canvasRef.current || !containerRef.current) return;
 
@@ -1584,7 +1559,7 @@ const LiveViewTab = () => {
         };
 
         window.addEventListener('resize', onResize);
-        onResize(); // Initial
+        onResize();
 
         if (canvasRef.current) {
             canvasRef.current.style.opacity = '1';
@@ -1596,7 +1571,6 @@ const LiveViewTab = () => {
         };
     }, [stats.markers]);
 
-    // Get visitor count based on selected period
     const getVisitorCount = () => {
         switch (visitorPeriod) {
             case 'live': return stats.rightNow;
@@ -1605,8 +1579,6 @@ const LiveViewTab = () => {
             default: return stats.rightNow;
         }
     };
-
-    // ... state logic remains same ...
 
     return (
         <motion.div variants={containerVar} initial="hidden" animate="show" className="space-y-6 pb-20">
@@ -1969,8 +1941,6 @@ const LiveViewTab = () => {
             </div>
         </motion.div>
     );
-
-
 };
 
 
@@ -1982,7 +1952,6 @@ export default function MiniAdminPage() {
     const { settings, updateSettings, calculateOrderProfit } = useAdminSettings();
     const [mounted, setMounted] = useState(false);
 
-    // Editor State
     const [editorState, setEditorState] = useState<{
         open: boolean;
         file: File | null;
@@ -1992,11 +1961,9 @@ export default function MiniAdminPage() {
 
     useEffect(() => { setMounted(true); }, []);
 
-    // HYDRATION FIX
     if (!mounted) return <div className="min-h-screen bg-[#FAFAFA]" />;
     if (!isAuthenticated) return <AdminLogin onLogin={() => setIsAuthenticated(true)} />;
 
-    // File Upload Handlers
     const initiateFileUpload = (field: 'logo' | 'hero', file: File) => {
         const reader = new FileReader();
         reader.addEventListener("load", () => {
@@ -2016,85 +1983,104 @@ export default function MiniAdminPage() {
         } catch (e) { alert("Upload failed"); }
     };
 
-    return (
-        <main className="flex h-[100dvh] w-full bg-[#f8f8f8] text-neutral-900 font-sans selection:bg-black selection:text-white overflow-hidden">
-            {/* 1. FIXED SIDEBAR */}
-            <aside className="w-20 lg:w-72 bg-white/80 backdrop-blur-xl border-r border-neutral-200/50 flex flex-col z-50 h-full relative shrink-0">
-                <div className="h-24 flex items-center px-8">
-                    <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center text-white font-black text-xs tracking-tighter">AN</div>
-                    <span className="ml-3 font-bold tracking-tight hidden lg:block">ANEC:DOTE</span>
-                </div>
+return (
+  <div className="min-h-screen w-full bg-[#f8f8f8]">
+    <div className="flex">
+      
+      {/* ================= SIDEBAR ================= */}
+      <aside className="w-20 lg:w-72 bg-white border-r border-neutral-200 flex flex-col fixed h-screen">
+        
+        {/* Logo */}
+        <div className="h-24 flex items-center px-6">
+          <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center text-white font-black text-xs">
+            AN
+          </div>
+          <span className="ml-3 font-bold hidden lg:block text-black">
+            ANEC:DOTE
+          </span>
+        </div>
 
-                <nav className="flex-1 px-4 space-y-2 py-8 overflow-y-auto">
-                    {[
-                        { id: "dashboard", icon: LayoutDashboard, label: "Overview" },
-                        { id: "live", icon: Globe, label: "Live View" }, // NEW LIVE VIEW
-                        { id: "addons", icon: Puzzle, label: "Addons" }, // New Addons Tab
-                        { id: "content", icon: Palette, label: "Experience" },
-                        { id: "commerce", icon: ShoppingBag, label: "Commerce" },
-                        { id: "profit", icon: TrendingUp, label: "Profit" },
-                        { id: "products", icon: Package, label: "Inventory" },
-                        { id: "size-guide", icon: Ruler, label: "Size Guide" }, // New Size Guide Tab
-                        { id: "settings", icon: Settings, label: "System" }
-                    ].map(tab => (
-                        <button
-                            key={tab.id}
-                            onClick={() => setActiveTab(tab.id)}
-                            className={clsx(
-                                "flex items-center gap-4 px-4 py-4 rounded-2xl w-full transition-all duration-300 group",
-                                activeTab === tab.id ? "bg-black text-white shadow-lg shadow-black/20" : "text-neutral-500 hover:bg-neutral-100"
-                            )}
-                        >
-                            <tab.icon size={20} strokeWidth={activeTab === tab.id ? 2.5 : 2} />
-                            <span className="hidden lg:block text-sm font-bold">{tab.label}</span>
-                            {activeTab === tab.id && <motion.div layoutId="active" className="ml-auto w-1.5 h-1.5 bg-green-400 rounded-full hidden lg:block shadow-[0_0_8px_rgba(74,222,128,0.8)]" />}
-                        </button>
-                    ))}
-                </nav>
+        {/* Nav */}
+        <nav className="flex-1 px-4 space-y-2 py-8 overflow-y-auto">
+          {[
+            { id: "dashboard", icon: LayoutDashboard, label: "Overview" },
+            { id: "live", icon: Globe, label: "Live View" },
+            { id: "addons", icon: Puzzle, label: "Addons" },
+            { id: "content", icon: Palette, label: "Experience" },
+            { id: "commerce", icon: ShoppingBag, label: "Commerce" },
+            { id: "profit", icon: TrendingUp, label: "Profit" },
+            { id: "products", icon: Package, label: "Inventory" },
+            { id: "size-guide", icon: Ruler, label: "Size Guide" },
+            { id: "settings", icon: Settings, label: "System" },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={clsx(
+                "flex items-center gap-4 px-4 py-4 rounded-2xl w-full transition-all duration-300",
+                activeTab === tab.id
+                  ? "bg-black text-white"
+                  : "text-neutral-500 hover:bg-neutral-100"
+              )}
+            >
+              <tab.icon size={20} />
+              <span className="hidden lg:block text-sm font-bold">
+                {tab.label}
+              </span>
+            </button>
+          ))}
+        </nav>
 
-                <div className="p-4 border-t border-neutral-100">
-                    <button onClick={() => setIsAuthenticated(false)} className="flex items-center gap-4 px-4 py-3 w-full text-neutral-400 hover:text-red-500 transition-colors">
-                        <LogOut size={18} />
-                        <span className="hidden lg:block text-xs font-bold uppercase tracking-widest">Sign Out</span>
-                    </button>
-                </div>
-            </aside>
+        {/* Sign Out */}
+        <div className="p-4 border-t border-neutral-200">
+          <button
+            onClick={() => setIsAuthenticated(false)}
+            className="flex items-center gap-4 px-4 py-3 w-full text-neutral-400 hover:text-red-500 transition-colors"
+          >
+            <LogOut size={18} />
+            <span className="hidden lg:block text-xs font-bold uppercase">
+              Sign Out
+            </span>
+          </button>
+        </div>
+      </aside>
 
-            {/* 2. MAIN SCROLLABLE AREA */}
-            <div className="flex-1 h-full relative overflow-y-auto overflow-x-hidden" style={{ perspective: "1000px" }}>
-                <AnimatePresence mode="wait">
-                    {editorState.open && editorState.imageSrc && (
-                        <ImageEditor
-                            imageSrc={editorState.imageSrc}
-                            aspectRatio={editorState.field === 'logo' ? 1 : 16 / 9}
-                            onCancel={() => setEditorState({ open: false, file: null, imageSrc: null, field: null })}
-                            onSave={handleEditorSave}
-                        />
-                    )}
-                </AnimatePresence>
+      {/* ================= MAIN CONTENT ================= */}
+      <div className="ml-20 lg:ml-72 w-full">
+        <div className="max-w-[1400px] mx-auto p-8 lg:p-16">
 
-                <div className="max-w-[1400px] mx-auto p-8 lg:p-16 pb-40 min-h-full">
-                    <AnimatePresence mode="wait">
-                        <motion.div
-                            key={activeTab}
-                            initial={{ opacity: 0, x: 20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: -20 }}
-                            transition={{ duration: 0.3, ease: "easeOut" }}
-                        >
-                            {activeTab === "dashboard" && <DashboardTab settings={settings} />}
-                            {activeTab === "live" && <LiveViewTab />}
-                            {activeTab === "addons" && <AddonsTab settings={settings} updateSettings={updateSettings} />} {/* Render New Tab */}
-                            {activeTab === "content" && <ContentTab settings={settings} updateSettings={updateSettings} initiateUpload={initiateFileUpload} />}
-                            {activeTab === "commerce" && <CommerceTab settings={settings} calculateOrderProfit={calculateOrderProfit} updateSettings={updateSettings} />}
-                            {activeTab === "profit" && <ProfitTab settings={settings} calculateOrderProfit={calculateOrderProfit} />}
-                            {activeTab === "products" && <ProductsTab settings={settings} updateSettings={updateSettings} />}
-                            {activeTab === "size-guide" && <SizeChartTab settings={settings} updateSettings={updateSettings} />}
-                            {activeTab === "settings" && <SettingsTab settings={settings} updateSettings={updateSettings} />}
-                        </motion.div>
-                    </AnimatePresence>
-                </div>
-            </div>
-        </main>
-    );
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              {activeTab === "dashboard" && <DashboardTab settings={settings} />}
+              {activeTab === "live" && <LiveViewTab />}
+              {activeTab === "addons" && <AddonsTab settings={settings} updateSettings={updateSettings} />}
+              {activeTab === "content" && <ContentTab settings={settings} updateSettings={updateSettings} initiateUpload={initiateFileUpload} />}
+              {activeTab === "commerce" && <CommerceTab settings={settings} calculateOrderProfit={calculateOrderProfit} updateSettings={updateSettings} />}
+              {activeTab === "profit" && <ProfitTab settings={settings} calculateOrderProfit={calculateOrderProfit} />}
+              {activeTab === "products" && <ProductsTab settings={settings} updateSettings={updateSettings} initiateUpload={initiateFileUpload} />}
+              {activeTab === "size-guide" && <SizeChartTab settings={settings} updateSettings={updateSettings} />}
+              {activeTab === "settings" && <SettingsTab settings={settings} updateSettings={updateSettings} />}
+            </motion.div>
+          </AnimatePresence>
+
+        </div>
+      </div>
+    </div>
+
+    {/* Image Editor Modal */}
+    {editorState.open && editorState.imageSrc && (
+      <ImageEditor
+        imageSrc={editorState.imageSrc}
+        onSave={handleEditorSave}
+        onCancel={() => setEditorState({ open: false, file: null, imageSrc: null, field: null })}
+      />
+    )}
+  </div>
+);
 }
